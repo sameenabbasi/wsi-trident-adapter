@@ -52,6 +52,7 @@ chief = [
     "addict",
 ]
 
+# Unsupported due to issues with flash_attn
 gigapath = [
     "fairscale",
     "gigapath @ git+https://github.com/prov-gigapath/prov-gigapath.git",
@@ -64,9 +65,9 @@ madeleine = [
 
 patch_encoders = ["wsi-pipeline[musk,conch,ctranspath]"]
 
-slide_encoders = ["wsi-pipeline[prism,chief,gigapath,madeleine]"]
+slide_encoders = ["wsi-pipeline[prism,chief,madeleine]"]
 
-all = ["wsi-pipeline[patch_encoders,slide_encoders]"]
+all = ["wsi-pipeline[patch_encoders]"]
 
 [build-system]
 requires = ["setuptools>=61.0"]
