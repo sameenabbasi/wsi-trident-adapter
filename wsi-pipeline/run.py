@@ -103,7 +103,7 @@ def validate_config(config: dict) -> None:
 def run_segmentation(config: dict, processor: trident.Processor):
     segmentation_model = segmentation_model_factory(
         config["segmentation"]["segmenter"],
-        confidence_thresh=args.seg_conf_thresh,
+        confidence_thresh=config["segmentation"]["seg_conf_thresh"],
     )
 
     if config["segmentation"]["remove_artifacts"]:
