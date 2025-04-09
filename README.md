@@ -38,7 +38,7 @@ Not yet supported
 ### Step 3: Run the bash script
 
 ```
-sbatch scripts/run.sh
+sbatch scripts/hpc4health/run.sh
 ```
 
 ## Common Errors / FAQ
