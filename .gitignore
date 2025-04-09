@@ -1,0 +1,22 @@
+# VS Code
+.vscode/*
+
+# Mac OS Files
+**/.DS_Store
+**/._*
+
+# Configs
+configs/*
+!configs/config_instructions.md
+!configs/config_template.yaml
+
+# Scripts
+scripts/**/*
+!scripts/hpc4health/
+!scripts/computecanada/
+!scripts/**/setup.sh
+!scripts/**/*_template.sh
+
+# Builds
+build/
+**/*.egg-info
