@@ -45,13 +45,8 @@ TASK="TODO"
 
 export WSI_TMP_DIR="/tmp/wsi_tmp_dir_$(date +%Y%m%d%H%M%S)"
 
-init_wsi_tmp_dir() {
-    mkdir -p $WSI_TMP_DIR
-}
-
-cleanup_wsi_tmp_dir() {
-    trap 'rm -rf -- "${WSI_TMP_DIR}"' EXIT 
-}
+mkdir -p $WSI_TMP_DIR
+trap 'rm -rf -- "${WSI_TMP_DIR}"' EXIT 
 
 ###########################################################################################################
 
@@ -65,15 +60,11 @@ export TORCH_HOME="/cluster/projects/kumargroup/hayden/wsi_pipeline_model_weight
 
 # Main Script
 
-init_wsi_tmp_dir
-
 source .venv/bin/activate
 export CUDA_VISIBLE_DEVICES=0
 
 python3 wsi-pipeline/run.py \
     --config "${PATH_TO_CONFIG}" \
     --task "${TASK}"
-
-cleanup_wsi_tmp_dir
 
 ###########################################################################################################
