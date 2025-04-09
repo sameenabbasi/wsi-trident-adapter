@@ -5,20 +5,26 @@
 #SBATCH --gres gpu:1
 #SBATCH -A kumargroup_gpu
 #SBATCH -t 3-00:00
-#SBATCH -J extract_features
-#SBATCH -o TODO
-#SBATCH -e TODO
-#SBATCH --mail-type=ALL
-#SBATCH --mail-user=TODO
+#SBATCH -J <TODO: Job Name>
+#SBATCH -o <TODO: Path/to/terminal/outputs, e.g. abcde.out>
+#SBATCH -e <TODO: Path/to/terminal/errors, e.g. abcde.err>
+#SBATCH --mail-type ALL
+#SBATCH --mail-user <TODO: Your uhn email address>
 
 ###########################################################################################################
 
 # Fill in these
 
 # Path to your config file, example: configs/config_template.yaml.
+
 PATH_TO_CONFIG="TODO"
 
 # Task you want to perform, available options: seg, patch, feat, all.
+# seg: segmentation
+# patch: patching (requires segmentation to be completed in the same job directory)
+# feat: feature extraction (requires patching to be completed in the same job directory)
+# all: everything
+
 TASK="TODO"
 
 ###########################################################################################################
