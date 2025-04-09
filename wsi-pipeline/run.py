@@ -2,9 +2,9 @@ import argparse
 import os
 import yaml
 
-import TRIDENT.trident
-from TRIDENT.trident.segmentation_models.load import segmentation_model_factory
-from TRIDENT.trident.patch_encoder_models.load import (
+import trident
+from trident.segmentation_models.load import segmentation_model_factory
+from trident.patch_encoder_models.load import (
     encoder_factory as patch_encoder_model_factory,
 )
 
@@ -29,14 +29,16 @@ def validate_config(config: dict) -> None:
     # segementation, seg_conf_thresh
     if not (0 < config["segmentation"]["seg_conf_thresh"] < 1):
         raise Exception(
-            f"Invalid segmentation confidence threshold {config['segmentation']['seg_conf_thresh']}. "
-            "Acceptable inputs: (0, 1), Recommended: {0.4, 0.5} for H&E slides."
+            "Invalid segmentation confidence threshold"
+            f" {config['segmentation']['seg_conf_thresh']}. Acceptable inputs:"
+            " (0, 1), Recommended: {0.4, 0.5} for H&E slides."
         )
 
     # patching, magnification
     if config["patching"]["magnification"] not in [5, 10, 20, 40, 80]:
         raise Exception(
-            f"Invalid patch magnification {config['patching']['magnification']}. "
+            "Invalid patch magnification "
+            f"{config['patching']['magnification']}. "
             "Acceptable inputs: {5, 10, 20, 40, 80}."
         )
 
@@ -48,7 +50,8 @@ def validate_config(config: dict) -> None:
     ):
         raise Exception(
             f"Invalid patch size {config['patching']['patch_size']}. "
-            "Acceptable inputs: Any integer >= 1, Recommended: {224, 256, 512, 1024}."
+            "Acceptable inputs: Any integer >= 1, "
+            "Recommended: {224, 256, 512, 1024}."
         )
 
     # patching, overlap
@@ -60,13 +63,15 @@ def validate_config(config: dict) -> None:
     ):
         raise Exception(
             f"Invalid patch overlap {config['patching']['overlap']}. "
-            "Acceptable inputs: Any integer >= 0 and < patch size, Recommended: 0."
+            "Acceptable inputs: Any integer >= 0 and < patch size, "
+            "Recommended: 0."
         )
 
     # patching, min_tissue_proportion
     if not (0 < config["patching"]["min_tissue_proportion"] < 1):
         raise Exception(
-            f"Invalid minimum tissue proportion {config['patching']['min_tissue_proportion']}. "
+            "Invalid minimum tissue proportion "
+            f"{config['patching']['min_tissue_proportion']}. "
             "Acceptable inputs: (0, 1), Recommended: 0."
         )
 
@@ -95,7 +100,7 @@ def validate_config(config: dict) -> None:
         )
 
 
-def run_segmentation(config: dict, processor: TRIDENT.trident.Processor):
+def run_segmentation(config: dict, processor: trident.Processor):
     segmentation_model = segmentation_model_factory(
         config["segmentation"]["segmenter"],
         confidence_thresh=args.seg_conf_thresh,
@@ -115,7 +120,7 @@ def run_segmentation(config: dict, processor: TRIDENT.trident.Processor):
     )
 
 
-def run_patching(config: dict, processor: TRIDENT.trident.Processor):
+def run_patching(config: dict, processor: trident.Processor):
     coords_dir = (
         f'{config["patching"]["magnification"]}x_'
         f'{config["patching"]["patch_size"]}px_'
@@ -131,7 +136,7 @@ def run_patching(config: dict, processor: TRIDENT.trident.Processor):
     )
 
 
-def run_feature_extraction(config: dict, processor: TRIDENT.trident.Processor):
+def run_feature_extraction(config: dict, processor: trident.Processor):
     coords_dir = (
         f'{config["patching"]["magnification"]}x_'
         f'{config["patching"]["patch_size"]}px_'
@@ -148,8 +153,8 @@ def run_feature_extraction(config: dict, processor: TRIDENT.trident.Processor):
     )
 
 
-def initialize_processor(config: dict, wsi_tmp_dir: str) -> TRIDENT.trident.Processor:
-    return TRIDENT.trident.Processor(
+def initialize_processor(config: dict, wsi_tmp_dir: str) -> trident.Processor:
+    return trident.Processor(
         job_dir=config["io"]["job_dir"],
         wsi_source=config["io"]["wsi_dir"],
         wsi_ext=config["io"]["wsi_extension"],
@@ -167,7 +172,7 @@ def main(args):
 
     validate_config(config)
 
-    processor = initialize_processor(config, os.environ['WSI_TMP_DIR'])
+    processor = initialize_processor(config, os.environ["WSI_TMP_DIR"])
 
     if args.task == "seg" or args.task == "all":
         run_segmentation(config, processor)
@@ -190,7 +195,7 @@ if __name__ == "__main__":
         "--task",
         type=str,
         default="all",
-        choice=["seg", "patch", "feat", "all"],
+        choices=["seg", "patch", "feat", "all"],
     )
 
     args = parser.parse_args()
