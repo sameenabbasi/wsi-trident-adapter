@@ -10,7 +10,7 @@ This guide explains the configuration settings used in the Whole Slide Image (WS
 
 -   `wsi_extension`: List of allowed slide file extensions.
 
-    -   Recommended: `svs`
+    -   Recommended: `.svs`
 
 -   `job_dir`: Directory where output files will be saved.
 

@@ -1,8 +1,8 @@
 io:
     wsi_dir: /path/to/your/slide/images
     wsi_extension:
-        - svs
-        - tif
+        - .svs
+        - .tif
     job_dir: ./out
 
 segmentation:
