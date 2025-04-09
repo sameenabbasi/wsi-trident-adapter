@@ -68,11 +68,11 @@ def validate_config(config: dict) -> None:
         )
 
     # patching, min_tissue_proportion
-    if not (0 < config["patching"]["min_tissue_proportion"] < 1):
+    if not (0 <= config["patching"]["min_tissue_proportion"] <= 1):
         raise Exception(
             "Invalid minimum tissue proportion "
             f"{config['patching']['min_tissue_proportion']}. "
-            "Acceptable inputs: (0, 1), Recommended: 0."
+            "Acceptable inputs: [0, 1], Recommended: 0."
         )
 
     # features, encoder
