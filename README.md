@@ -47,3 +47,7 @@ sbatch scripts/hpc4health/run.sh
 Q: I cannot git clone this repository.
 
 A: Since this is a private repository, you'll have to set up a [ssh key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) to clone this repo.
+
+Q: I run something wrong and have to cancel using `scancel` / I want to pause using `scancel` and rerun the script later.
+
+A: Normally, the script should handle and remove all slides that has been placed in the temporary folder within the cluster (`/tmp/wsi_tmp_dir`). You may want to double-check with that to avoid crashing the node if you run out of space in `/tmp`. When the pipeline runs, it will create `.lock` files to indicate that the slide is being processed, allowing for multiprocessing, you may have to delete these files as well. The safest way is to remove any related files for an incompletely processed slide to avoid the pipeline from skipping it when you rerun the script.
