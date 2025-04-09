@@ -6,8 +6,9 @@
 git clone git@github.com:haydenych/WSI-Pipeline.git
 
 module load python3/3.10.9
-cd WSI-Pipeline && python3.10 -m venv .venv
-source .venv/bin/activate
+cd WSI-Pipeline
+git submodule update --init --recursive
+python3.10 -m venv .venv && source .venv/bin/activate
 pip3 install --upgrade pip
 pip3 install .[all]
 ```
