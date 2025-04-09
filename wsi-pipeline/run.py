@@ -162,7 +162,7 @@ def initialize_processor(config: dict, wsi_tmp_dir: str) -> trident.Processor:
         clear_cache=True,
         skip_errors=True,
         custom_mpp_keys=None,
-        custom_list_of_wsis=args.custom_list_of_wsis,
+        custom_list_of_wsis=None,
     )
 
 
