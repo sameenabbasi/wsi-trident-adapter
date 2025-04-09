@@ -70,7 +70,7 @@ init_wsi_tmp_dir
 source .venv/bin/activate
 export CUDA_VISIBLE_DEVICES=0
 
-python3 src/run.py \
+python3 wsi-pipeline/run.py \
     --config "${PATH_TO_CONFIG}" \
     --task "${TASK}"
 
