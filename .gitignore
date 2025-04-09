@@ -19,5 +19,7 @@ scripts/**/*
 
 # Builds
 .venv/*
+**/__pycache__/
+*.pyc
 build/
 **/*.egg-info
