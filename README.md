@@ -22,7 +22,8 @@ Not yet supported
 
 -   Create a copy of [configs/config_template.yaml](configs/config_template.yaml).
 -   Change `io.wsi_dir` to your slide images directory. Make sure this path links directly to the slide images but not sub-folders containing the images.
--   For first time users, you may want to change `patching.magnification` and `patching.patch_size`, while leaving the rest untouched.
+-   Change `io.job_dir` to your output location.
+-   For first time users, you may also want to change `patching.magnification` and `patching.patch_size`, while leaving the rest untouched.
 -   Refer to the [config instructions manuals](configs/config_instructions.md) for detailed usage of each configuration.
 
 ### Step 2: Preparing the run script
@@ -32,7 +33,13 @@ Not yet supported
 -   For **TODOs** in sbatch, you can simply delete the line if you do not want them. You can also replace the whole slurm section if you wish. Please refer to the [sbatch guide](https://slurm.schedmd.com/sbatch.html) for detailed usage.
 -   If you simply want to extract features, use `TASK="all"`. If you are cautious and want some extra quality control, use `TASK="seg"` to check the segmentation contours. Then proceed with patching `TASK="patch"` and feature extraction `TASK="feat"`.
 
--   **Reminder**: Do not add any space bars between vairiable assignments in a shell script. i.e. `TASK = "all"` will cause you an [error](https://stackoverflow.com/a/41748518) :)
+-   **Reminder**: Do not add any space bars between vairiable assignments in a bash script. i.e. `TASK = "all"` will cause you an [error](https://stackoverflow.com/a/41748518) :)
+
+### Step 3: Run the bash script
+
+```
+sbatch scripts/run.sh
+```
 
 ## Common Errors / FAQ
 
