@@ -1,4 +1,4 @@
 [submodule "TRIDENT"]
 	path = TRIDENT
-	url = https://github.com/haydenych/TRIDENT
+	url = git@github.com:haydenych/WSI-Pipeline.git
 	branch = main
