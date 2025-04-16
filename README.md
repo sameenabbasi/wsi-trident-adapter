@@ -50,4 +50,8 @@ A: Since this is a private repository, you'll have to set up a [ssh key](https:/
 
 Q: I run something wrong and have to cancel using `scancel` / I want to pause using `scancel` and rerun the script later.
 
-A: Normally, the script should handle and remove all slides that has been placed in the temporary folder within the cluster (`/tmp/wsi_tmp_dir`). You may want to double-check with that to avoid crashing the node if you run out of space in `/tmp`. When the pipeline runs, it will create `.lock` files to indicate that the slide is being processed, allowing for multiprocessing, you may have to delete these files as well. The safest way is to remove any related files for an incompletely processed slide to avoid the pipeline from skipping it when you rerun the script.
+A: When the pipeline runs, it will create `.lock` files to indicate that the slide is being processed, allowing for multiprocessing, you may have to delete these files as well. The safest way is to remove any related files for an incompletely processed slide to avoid the pipeline from skipping it when you rerun the script.
+
+Q: I want to have slide-specific segmentation confidence threshold.
+
+A: Have two or more different config files and use different `custom_list_of_wsis` and `seg_conf_thresh`.
