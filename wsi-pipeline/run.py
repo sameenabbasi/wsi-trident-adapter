@@ -153,7 +153,7 @@ def run_feature_extraction(config: dict, processor: trident.Processor):
     )
 
 
-def initialize_processor(config: dict, wsi_tmp_dir: str) -> trident.Processor:
+def initialize_processor(config: dict, wsi_tmp_dir: str | None = None) -> trident.Processor:
     return trident.Processor(
         job_dir=config["io"]["job_dir"],
         wsi_source=config["io"]["wsi_dir"],
@@ -162,7 +162,8 @@ def initialize_processor(config: dict, wsi_tmp_dir: str) -> trident.Processor:
         clear_cache=True,
         skip_errors=True,
         custom_mpp_keys=None,
-        custom_list_of_wsis=None,
+        custom_list_of_wsis=config["io"]["custom_list_of_wsis"],
+        max_workers=len(os.sched_getaffinity(0))
     )
 
 
@@ -172,7 +173,7 @@ def main(args):
 
     validate_config(config)
 
-    processor = initialize_processor(config, os.environ["WSI_TMP_DIR"])
+    processor = initialize_processor(config, os.getenv("WSI_TMP_DIR", None))
 
     if args.task == "seg" or args.task == "all":
         run_segmentation(config, processor)

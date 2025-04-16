@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -p gpu
 #SBATCH -c 8
-#SBATCH --mem 16G
+#SBATCH --mem 32G
 #SBATCH --gres gpu:1
 #SBATCH -A kumargroup_gpu
 #SBATCH -t 3-00:00
@@ -43,10 +43,10 @@ TASK="TODO"
 # If you really have to change this, make extreme caution since this code will automatically clean anything
 # inside the tmp directory
 
-export WSI_TMP_DIR="/tmp/wsi_tmp_dir_$(date +%Y%m%d%H%M%S)"
+# export WSI_TMP_DIR="/tmp/wsi_tmp_dir_$(date +%Y%m%d%H%M%S)"
 
-mkdir -p $WSI_TMP_DIR
-trap 'rm -rf -- "${WSI_TMP_DIR}"' EXIT 
+# mkdir -p $WSI_TMP_DIR
+# trap 'rm -rf -- "${WSI_TMP_DIR}"' EXIT 
 
 ###########################################################################################################
 
@@ -55,6 +55,7 @@ trap 'rm -rf -- "${WSI_TMP_DIR}"' EXIT
 
 export HF_HOME="/cluster/projects/kumargroup/hayden/wsi_pipeline_model_weights/huggingface"
 export TORCH_HOME="/cluster/projects/kumargroup/hayden/wsi_pipeline_model_weights/torch"
+export TRIDENT_HOME="/cluster/projects/kumargroup/hayden/wsi_pipeline_model_weights/trident"
 
 ###########################################################################################################
 
