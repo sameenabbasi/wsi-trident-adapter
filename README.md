@@ -25,7 +25,7 @@ Not yet supported
 -   Change `io.wsi_dir` to your slide images directory. Make sure this path links directly to the slide images but not sub-folders containing the images.
 -   Change `io.job_dir` to your output location.
 -   For first time users, you may also want to change `patching.magnification` and `patching.patch_size`, while leaving the rest untouched.
--   Refer to the [config instructions manuals](configs/config_instructions.md) for detailed usage of each configuration.
+-   Refer to the [config instruction manual](configs/config_instructions.md) for detailed usage of each configuration.
 
 ### Step 2: Preparing the run script
 
