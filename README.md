@@ -15,7 +15,17 @@ pip3 install .[all]
 
 ## Setup (Compute Canada)
 
-Not yet supported
+```
+git clone git@github.com:haydenych/WSI-Pipeline.git
+
+module load python/3.10.13
+module load openslide/4.0.0
+cd WSI-Pipeline
+git submodule update --init --recursive
+python3.10 -m venv .venv && source .venv/bin/activate
+pip3 install --upgrade pip
+pip3 install --no-deps -r requirements_cc.txt
+```
 
 ## How to use the tool?
 

@@ -1,0 +1,40 @@
+h5py
+ipywidgets
+tqdm
+
+einops_exts
+
+torch
+segmentation-models-pytorch
+
+huggingface_hub
+timm == 0.9.16
+transformers
+
+geopandas
+matplotlib
+Pillow
+scipy
+opencv-python
+
+openslide-python
+
+# musk
+fairscale
+musk @ git+https://github.com/lilab-stanford/MUSK
+
+# conch
+conch @ git+https://github.com/Mahmoodlab/CONCH.git
+
+# ctranspath
+timm_ctp
+
+# prism
+environs==11.0.0
+sacremoses==0.1.1
+
+# chief
+addict
+
+# madeleine
+madeleine @ git+https://github.com/mahmoodlab/MADELEINE.git
