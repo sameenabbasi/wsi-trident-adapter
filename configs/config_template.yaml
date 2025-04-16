@@ -4,6 +4,7 @@ io:
         - .svs
         - .tif
     job_dir: ./out
+    custom_list_of_wsis: null
 
 segmentation:
     segmenter: hest

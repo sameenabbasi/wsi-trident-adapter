@@ -14,6 +14,17 @@ This guide explains the configuration settings used in the Whole Slide Image (WS
 
 -   `job_dir`: Directory where output files will be saved.
 
+-   `custom_list_of_wsis`: CSV file for custom list of WSIs
+
+    -   Recommended: `null`
+    -   CSV Format:
+        ```
+        wsi
+        001.svs
+        002.svs
+        003.svs
+        ```
+
 ---
 
 ## Segmentation Settings
