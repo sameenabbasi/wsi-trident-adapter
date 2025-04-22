@@ -48,6 +48,8 @@ pip3 install --no-deps -r requirements_cc.txt
 
 ### Step 3: Run the bash script
 
+Reminder: Run `sbatch` at the `WSI-Pipeline` directory. Trying to `cd` into `scripts` and run `sbatch` inside will break due to relative paths.
+
 ```
 sbatch scripts/hpc4health/run.sh
 ```
