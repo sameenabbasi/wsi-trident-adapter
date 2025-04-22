@@ -23,6 +23,7 @@ dependencies = [
     "Pillow",
     "scipy",
     "opencv-python",
+    "streamlit",
 
     "openslide-bin",
     "openslide-python",

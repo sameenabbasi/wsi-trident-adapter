@@ -54,6 +54,42 @@ Reminder: Run `sbatch` at the `WSI-Pipeline` directory. Trying to `cd` into `scr
 sbatch scripts/hpc4health/run.sh
 ```
 
+## Streamlit (Comparing multiple job directories)
+
+For first time users, you can skip this session. This tool allows you to compare across multiple job directories and select the desired segmentation threshold `seg_conf_thresh` for the best outcome.
+
+After running the above script, if you find segmentation performance not up to standard and would like to have per-slide segmentation threshold, this tool can be helpful.
+
+To start, run the script multiple time but each with different `seg_conf_thresh`. You will want to use `TASK="seg"` since you are only focusing on segmentation.
+In streamlit, input your job directories and manually select the ones you want to keep.
+Finally, you can export your selections to csv at the **Process Lists** tab. These csv files will be good for the config option `custom_list_of_wsis`.
+
+```
+streamlit run wsi-pipeline/streamlit.py
+```
+
+![img](assets/comparison_tool.png)
+
+### Port Forwarding on slurm clusters
+
+Running streamlit on slurm clusters requires SSH tunneling to work with. As an example on HPC4Health:
+
+```
+# On h4huhnlogin node
+salloc -t 1:00:00 -c 2 --mem 4G
+
+# On h4h allocated node
+# streamlit run wsi-pipeline/streamlit.py --server.port 8501
+
+# On your local computer
+ssh -L 8501:localhost:8501 -J t******uhn@h4huhnlogin1.uhnresearch.ca t******uhn@node***
+
+# Access the webpage with a browser on your local computer
+localhost:8501
+```
+
+For more details, please read the [docs](https://docs.alliancecan.ca/wiki/SSH_tunnelling) from compute canada.
+
 ## Common Errors / FAQ
 
 Q: I cannot git clone this repository.
@@ -63,7 +99,3 @@ A: Since this is a private repository, you'll have to set up a [ssh key](https:/
 Q: I run something wrong and have to cancel using `scancel` / I want to pause using `scancel` and rerun the script later.
 
 A: When the pipeline runs, it will create `.lock` files to indicate that the slide is being processed, allowing for multiprocessing, you may have to delete these files as well. The safest way is to remove any related files for an incompletely processed slide to avoid the pipeline from skipping it when you rerun the script.
-
-Q: I want to have slide-specific segmentation confidence threshold.
-
-A: Have two or more different config files and use different `custom_list_of_wsis` and `seg_conf_thresh`.
