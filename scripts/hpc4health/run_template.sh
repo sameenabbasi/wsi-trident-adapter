@@ -50,12 +50,13 @@ TASK="TODO"
 
 ###########################################################################################################
 
-# Setup PyTorch and Huggingface cache directory
+# Setup checkpoints and cache directory
 # Do NOT change this unless you know what you are doing!!!
 
 export HF_HOME="/cluster/projects/kumargroup/hayden/wsi_pipeline_model_weights/huggingface"
 export TORCH_HOME="/cluster/projects/kumargroup/hayden/wsi_pipeline_model_weights/torch"
 export TRIDENT_HOME="/cluster/projects/kumargroup/hayden/wsi_pipeline_model_weights/trident"
+export LOCAL_CKPTS="local_ckpts/hpc4health"
 
 ###########################################################################################################
 
