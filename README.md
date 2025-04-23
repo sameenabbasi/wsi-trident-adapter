@@ -79,7 +79,7 @@ Running streamlit on slurm clusters requires SSH tunneling to work with. As an e
 salloc -t 1:00:00 -c 2 --mem 4G
 
 # On h4h allocated node
-# streamlit run wsi-pipeline/streamlit.py --server.port 8501
+streamlit run wsi-pipeline/streamlit.py --server.port 8501
 
 # On your local computer
 ssh -L 8501:localhost:8501 -J t******uhn@h4huhnlogin1.uhnresearch.ca t******uhn@node***
