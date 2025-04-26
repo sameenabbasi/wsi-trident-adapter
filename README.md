@@ -10,7 +10,7 @@ cd WSI-Pipeline
 git submodule update --init --recursive
 python3.10 -m venv .venv && source .venv/bin/activate
 pip3 install --upgrade pip
-pip3 install .[all]
+pip3 install -r requirements_h4h.txt
 ```
 
 ## Setup (Compute Canada)
@@ -24,7 +24,7 @@ cd WSI-Pipeline
 git submodule update --init --recursive
 python3.10 -m venv .venv && source .venv/bin/activate
 pip3 install --upgrade pip
-pip3 install --no-deps -r requirements_cc.txt
+pip3 install -r requirements_cc.txt
 ```
 
 ## How to use the tool?
