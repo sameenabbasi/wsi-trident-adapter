@@ -56,7 +56,7 @@ TASK="TODO"
 export HF_HOME="/cluster/projects/kumargroup/hayden/wsi_pipeline_model_weights/huggingface"
 export TORCH_HOME="/cluster/projects/kumargroup/hayden/wsi_pipeline_model_weights/torch"
 export TRIDENT_HOME="/cluster/projects/kumargroup/hayden/wsi_pipeline_model_weights/trident"
-export LOCAL_CKPTS="local_ckpts/hpc4health"
+export LOCAL_CKPTS="/cluster/projects/kumargroup/hayden/wsi_pipeline_model_weights/local_ckpts"
 
 ###########################################################################################################
 
