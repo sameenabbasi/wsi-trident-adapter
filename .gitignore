@@ -23,3 +23,6 @@ scripts/**/*
 *.pyc
 build/
 **/*.egg-info
+
+# Outputs
+example/out/*

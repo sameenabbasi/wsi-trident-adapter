@@ -17,6 +17,21 @@ pip3 install -r requirements_h4h.txt
 
 Currently, only Cedar and Narval are supported.
 
+If you are new, please clone this repository into scratch instead of projects. There is a
+1000k file limit in projects that is shared across the group. Installing virtual environment
+will take up ~60k files.
+
+If you have some experience with compute canada and would like to 
+seperate the virtual environment from the repository. 
+Replace the lines for the virtual environment below with this.
+
+```
+ENV="<YOUR PATH TO ENV>" 
+python3.10 -m venv $ENV/.venv && source $ENV/.venv/bin/activate
+```
+
+Otherwise, You can also move this setup process into the slurm script.
+
 ```
 git clone git@github.com:haydenych/WSI-Pipeline.git
 
@@ -28,6 +43,27 @@ python3.10 -m venv .venv && source .venv/bin/activate
 pip3 install --upgrade pip
 pip3 install -r requirements_cc.txt
 ```
+
+## Example (For Beginners)
+
+Run this if you are on hpc4health.
+
+```
+sbatch example/run_hpc4health.sh
+```
+
+Run this if you are on Cedar or Narval.
+
+```
+sbatch example/run_computecanada.sh
+```
+
+Your goal is to read and understand the folders
+
+-   `contours`
+-   `20x_256px_0px_overlap/visualization`
+-   `20x_256px_0px_overlap/patches` (Open the .h5 files with Python)
+-   `20x_256px_0px_overlap/features_uni_v2` (Open the .h5 files with Python)
 
 ## How to use the tool?
 

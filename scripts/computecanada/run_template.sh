@@ -51,10 +51,10 @@ TASK="TODO"
 # Setup checkpoints and cache directory
 # Do NOT change this unless you know what you are doing!!!
 
-export HF_HOME="/home/heiheiyu/projects/def-sushant/heiheiyu/wsi_pipeline_model_weights/huggingface"
-export TORCH_HOME="/home/heiheiyu/projects/def-sushant/heiheiyu/wsi_pipeline_model_weights/torch"
-export TRIDENT_HOME="/home/heiheiyu/projects/def-sushant/heiheiyu/wsi_pipeline_model_weights/trident"
-export LOCAL_CKPTS="/home/heiheiyu/projects/def-sushant/heiheiyu/wsi_pipeline_model_weights/local_ckpts"
+export HF_HOME="/project/def-sushant/heiheiyu/wsi_pipeline_model_weights/huggingface"
+export TORCH_HOME="/project/def-sushant/heiheiyu/wsi_pipeline_model_weights/torch"
+export TRIDENT_HOME="/project/def-sushant/heiheiyu/wsi_pipeline_model_weights/trident"
+export LOCAL_CKPTS="/project/def-sushant/heiheiyu/wsi_pipeline_model_weights/local_ckpts"
 
 ###########################################################################################################
 
