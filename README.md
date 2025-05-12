@@ -15,11 +15,13 @@ pip3 install -r requirements_h4h.txt
 
 ## Setup (Compute Canada)
 
+Currently, only Cedar and Narval are supported.
+
 ```
 git clone git@github.com:haydenych/WSI-Pipeline.git
 
-module load python/3.10.13
-module load openslide/4.0.0
+module load StdEnv/2023
+module load rust/1.85.0 python/3.10.13 openslide/4.0.0 opencv/4.10.0 arrow/18.1.0
 cd WSI-Pipeline
 git submodule update --init --recursive
 python3.10 -m venv .venv && source .venv/bin/activate

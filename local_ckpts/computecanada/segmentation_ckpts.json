@@ -1,0 +1,5 @@
+{
+    "hest": "/project/def-sushant/heiheiyu/wsi_pipeline_model_weights/trident/deeplabv3_seg_v4.ckpt",
+    "grandqc": "/project/def-sushant/heiheiyu/wsi_pipeline_model_weights/trident/Tissue_Detection_MPP10.pth",
+    "grandqc_artifact": "/project/def-sushant/heiheiyu/wsi_pipeline_model_weights/trident/GrandQC_MPP1_state_dict.pth"
+}
