@@ -79,7 +79,8 @@ This guide explains the configuration settings used in the Whole Slide Image (WS
     -   Accepted Values: `conch_v1`, `conch_v15`, `uni_v1`, `uni_v2`, `ctranspath`, `phikon`, `phikon_v2`, `resnet50`
         `gigapath`, `hoptimus0`, `kaiko-vits8`, `kaiko-vits16`, `kaiko-vitb8`, `kaiko-vitb16`, `kaiko-vitl14`, `lunit-vits8`
     -   Recommended: `conch_v1`, `conch_v15`, `uni_v1`, `uni_v2`
-    -   For details of each encoder, please refer to the original [TRIDENT](https://github.com/mahmoodlab/TRIDENT/blob/main/README.md#-2-running-trident) repo
+    -   For details of each encoder, please refer to the original [TRIDENT](https://github.com/mahmoodlab/TRIDENT/blob/main/README.md#-2-running-trident) repo.
+    -   Slide-level feature encoders are currently not supported.
 
 -   `batch_size`: Number of patches processed in parallel.
     -   Accepted Values: Any integer ≥ 1
