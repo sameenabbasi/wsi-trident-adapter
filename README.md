@@ -39,7 +39,7 @@ Replace the lines for the virtual environment with this.
 
 ```
 ENV="<YOUR PATH TO ENV>" 
-python3.10 -m venv $ENV/.venv && source $ENV/.venv/bin/activate
+python3.10 -m venv $ENV && source $ENV/bin/activate
 ```
 
 Otherwise, You can also move this setup process into the slurm script.
