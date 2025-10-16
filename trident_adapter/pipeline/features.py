@@ -1,14 +1,18 @@
-import trident
-from trident.patch_encoder_models.load import (
-    encoder_factory as patch_encoder_model_factory,
-)
-from trident.slide_encoder_models.load import (
-    encoder_factory as slide_encoder_model_factory,
-)
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from ..utils.config.structures import Config
 
+if TYPE_CHECKING:
+    import trident
 
-def run_feature_extraction(config: Config, processor: trident.Processor):
+
+def run_feature_extraction(config: Config, processor: "trident.Processor"):
+    from trident.patch_encoder_models.load import (
+        encoder_factory as patch_encoder_model_factory,
+    )
+
     coords_dir = (
         f"{config.patching.magnification}x_"
         f"{config.patching.patch_size}px_"

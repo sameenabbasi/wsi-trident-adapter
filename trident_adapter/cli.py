@@ -5,7 +5,6 @@ from pathlib import Path
 
 from . import __version__
 from .config import DEFAULTS
-from .runner import run_pipeline
 from .utils.config.io import load_yaml, merge
 from .utils.config.validation import validate_config, validate_yaml_structure
 from .utils.config.structures import Config
@@ -125,6 +124,8 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     runtime_config = Config.from_dict(runtime_config)
+
+    from .runner import run_pipeline
     run_pipeline(config=runtime_config, task=args.task)
 
     return 0

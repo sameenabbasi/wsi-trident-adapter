@@ -1,8 +1,14 @@
-import trident
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from ..utils.config.structures import Config
 
+if TYPE_CHECKING:
+    import trident
 
-def run_patching(config: Config, processor: trident.Processor):
+
+def run_patching(config: Config, processor: "trident.Processor"):
     coords_dir = (
         f"{config.patching.magnification}x_"
         f"{config.patching.patch_size}px_"

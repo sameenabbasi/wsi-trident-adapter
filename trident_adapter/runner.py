@@ -1,12 +1,9 @@
+from __future__ import annotations
+
 import os
 from pathlib import Path
-from typing import Literal
+from typing import Literal, TYPE_CHECKING
 
-import trident
-
-from .pipeline.features import run_feature_extraction
-from .pipeline.patching import run_patching
-from .pipeline.segmentation import run_segmentation
 from .utils.config.structures import Config
 from .utils.process_list.loader import (
     create_default_process_list,
@@ -17,12 +14,17 @@ from .utils.process_list.structures import ProcessList
 
 THRESHOLD_PRECISION = 2
 
+if TYPE_CHECKING:
+    import trident
+
 
 def _initialize_processor(
     config: Config,
     wsi_tmp_dir: str | None = None,
     manifest_path: Path | str | None = None,
-) -> trident.Processor:
+) -> "trident.Processor":
+
+    import trident
 
     try:
         max_workers = len(os.sched_getaffinity(0))
@@ -46,6 +48,10 @@ def run_pipeline(
     config: Config,
     task: Literal["all", "seg", "patch", "feat"],
 ):
+    from .pipeline.features import run_feature_extraction
+    from .pipeline.patching import run_patching
+    from .pipeline.segmentation import run_segmentation
+
     manifest_dir = config.io.job_dir / "process_lists"
     manifest_dir.mkdir(parents=True, exist_ok=True)
 

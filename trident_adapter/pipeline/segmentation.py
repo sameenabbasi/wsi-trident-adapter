@@ -1,12 +1,20 @@
-import trident
-from trident.segmentation_models.load import segmentation_model_factory
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from ..utils.config.structures import Config
+
+if TYPE_CHECKING:
+    import trident
+
 
 def run_segmentation(
     config: Config,
-    processor: trident.Processor,
+    processor: "trident.Processor",
     seg_conf_override: float | None = None,
 ):
+    from trident.segmentation_models.load import segmentation_model_factory
+
     conf_thresh = (
         seg_conf_override
         if seg_conf_override is not None
