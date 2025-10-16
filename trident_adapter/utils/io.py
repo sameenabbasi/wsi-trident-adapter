@@ -6,7 +6,7 @@ import pandas as pd
 def list_slide_paths(
     wsi_dir: Path | str, exts: tuple[str, ...] = (".svs", ".tif", ".tiff")
 ) -> dict[str, Path]:
-    """Return slide paths keyed by slide identifier."""
+    """Return slide paths keyed by relative filename (including extension)."""
 
     base_dir = Path(wsi_dir)
     allowed_exts = tuple(ext.lower() for ext in exts)
@@ -22,16 +22,15 @@ def list_slide_paths(
         if entry.suffix.lower() not in allowed_exts:
             continue
 
-        slide_id = entry.stem
-        if slide_id in slides:
+        slide_key = entry.name
+        if slide_key in slides:
             raise ValueError(
-                "Duplicate slide identifier detected: "
-                f"'{slide_id}'. Ensure filenames are unique."
+                "Duplicate slide filename detected: "
+                f"'{slide_key}'. Ensure filenames are unique."
             )
 
-        slides[slide_id] = entry.resolve()
+        slides[slide_key] = entry.resolve()
 
     return slides
-
 
 
