@@ -35,8 +35,8 @@ def copy_ckpts(profile: str, force: bool) -> None:
 
     mappings: list[tuple[str, str]] = [
         ("segmentation_ckpts.json", "trident.segmentation_models.load"),
-        ("patch_ckpts.json", "trident.patch_encoder_models.load"),
-        ("slide_ckpts.json", "trident.slide_encoder_models.load"),
+        ("patch_encoder_ckpts.json", "trident.patch_encoder_models.load"),
+        ("slide_encoder_ckpts.json", "trident.slide_encoder_models.load"),
     ]
 
     for filename, module_path in mappings:
