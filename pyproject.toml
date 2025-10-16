@@ -1,3 +1,31 @@
+[build-system]
+requires = ["setuptools>=65", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wsi-trident-adapter"
+version = "0.2.0"
+description = "TRIDENT adapter"
+readme = "README.md"
+authors = [{ name = "hayden", email = "cheukhei.yu@uhn.ca" }]
+requires-python = ">=3.9"
+dependencies = []
+
+[project.scripts]
+wsi-trident-adapter = "trident_adapter.cli:main"
+wsi-trident-adapter-install = "trident_adapter.scripts.install_profile:main"
+
+[tool.setuptools.packages.find]
+include = [
+    "trident_adapter",
+    "trident_adapter.*",
+]
+
+[tool.setuptools.package-data]
+"trident_adapter" = [
+    "profiles/**/*",
+]
+
 [tool.black]
 line-length = 80
 unstable = true

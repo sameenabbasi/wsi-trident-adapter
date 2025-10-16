@@ -1,139 +1,73 @@
-# WSI-Pipeline
+# WSI Trident Adapter
 
-## Setup (HPC4Health)
+Adapter layer around [TRIDENT](https://github.com/mahmoodlab/TRIDENT) that provides a stable CLI for offline and cluster workloads. Use this README for the current development workflow while we stabilise the package.
 
-```
-git clone git@github.com:haydenych/WSI-Pipeline.git
+---
 
-module load python3/3.10.9
-cd WSI-Pipeline
-git submodule update --init --recursive
-python3.10 -m venv .venv && source .venv/bin/activate
-pip3 install --upgrade pip
-pip3 install -r requirements_h4h.txt
-```
+## Prerequisites
 
-## Setup (Compute Canada)
+- Python 3.9+
+- Access to the private repository (`git@github.com:haydenych/wsi-trident-adapter.git`)
+- A virtual environment with the CUDA/OpenSlide stack required by your target cluster (load the modules before installing if needed)
 
-Currently, only Cedar and Narval are supported.
+---
 
-If you are new, please clone this repository into scratch instead of projects. There is a
-1000k file limit in projects that is shared across the group. Installing virtual environment
-will take up ~60k files.
+## Install (development branch)
 
-```
-git clone git@github.com:haydenych/WSI-Pipeline.git
-
-module load StdEnv/2023
-module load python/3.10.13 openslide/4.0.0 opencv/4.10.0 arrow/18.1.0
-cd WSI-Pipeline
-git submodule update --init --recursive
-python3.10 -m venv .venv && source .venv/bin/activate
-pip3 install --upgrade pip
-pip3 install -r requirements_cc.txt
+```bash
+# activate your virtual environment first
+pip install --upgrade pip
+pip install "git+ssh://git@github.com/haydenych/wsi-trident-adapter.git@dev"
+# if SSH is unavailable, use an HTTPS URL with a personal access token
 ```
 
-If you have some experience with compute canada and would like to 
-seperate the virtual environment from the repository. 
-Replace the lines for the virtual environment with this.
+Installing exposes two console scripts:
 
-```
-ENV="<YOUR PATH TO ENV>" 
-python3.10 -m venv $ENV && source $ENV/bin/activate
-```
+- `wsi-trident-adapter-install` – copies profile assets (checkpoints, wheels, requirements) into your environment
+- `wsi-trident-adapter` – runs the adapter CLI around TRIDENT
 
-Otherwise, You can also move this setup process into the slurm script.
+---
 
-## Example (For Beginners)
+## Configure the environment
 
-Run this if you are on hpc4health.
+Run the profile installer once per virtual environment. Pick the profile that matches your cluster; `hpc-for-health` is the current default.
 
-```
-sbatch example/run_hpc4health.sh
+```bash
+wsi-trident-adapter-install hpc-for-health
 ```
 
-Run this if you are on Cedar or Narval.
+The command copies checkpoint manifests into the vendored TRIDENT modules and installs any profile-specific wheels listed in `trident_adapter/profiles/<profile>/requirements.txt`.
 
-```
-sbatch example/run_computecanada.sh
-```
+---
 
-Your goal is to read and understand the folders
+## Sanity check the CLI
 
--   `contours`
--   `20x_256px_0px_overlap/visualization`
--   `20x_256px_0px_overlap/patches` (Open the .h5 files with Python)
--   `20x_256px_0px_overlap/features_uni_v2` (Open the .h5 files with Python)
-
-## How to use the tool?
-
-### Step 1: Preparing the config file
-
--   Create a copy of [configs/config_template.yaml](configs/config_template.yaml).
--   Change `io.wsi_dir` to your slide images directory. Make sure this path links directly to the slide images but not sub-folders containing the images.
--   Change `io.job_dir` to your output location.
--   For first time users, you may also want to change `patching.magnification` and `patching.patch_size`, while leaving the rest untouched.
--   Refer to the [config instruction manual](configs/config_instructions.md) for detailed usage of each configuration.
-
-### Step 2: Preparing the run script
-
--   Create a copy of [scripts/\*\*/run_template.sh](scripts/hpc4health/run_template.sh).
--   Change variables marked with **TODO**.
--   For **TODOs** in sbatch, you can simply delete the line if you do not want them. You can also replace the whole slurm section if you wish. Please refer to the [sbatch guide](https://slurm.schedmd.com/sbatch.html) for detailed usage.
--   If you simply want to extract features, use `TASK="all"`. If you are cautious and want some extra quality control, use `TASK="seg"` to check the segmentation contours. Then proceed with patching `TASK="patch"` and feature extraction `TASK="feat"`.
-
--   **Reminder**: Do not add any space bars between vairiable assignments in a bash script. i.e. `TASK = "all"` will cause you an [error](https://stackoverflow.com/a/41748518) :)
-
-### Step 3: Run the bash script
-
-Reminder: Run `sbatch` at the `WSI-Pipeline` directory. Trying to `cd` into `scripts` and run `sbatch` inside will break due to relative paths.
-
-```
-sbatch scripts/hpc4health/run.sh
+```bash
+wsi-trident-adapter --help
 ```
 
-## Streamlit (Comparing multiple job directories)
+You should see the `extract` subcommand along with the core options `--config`, `--task`, `--wsi-dir`, and `--output-dir`.
 
-For first time users, you can skip this session. This tool allows you to compare across multiple job directories and select the desired segmentation threshold `seg_conf_thresh` for the best outcome.
+---
 
-After running the above script, if you find segmentation performance not up to standard and would like to have per-slide segmentation threshold, this tool can be helpful.
+## Run a quick example
 
-To start, run the script multiple time but each with different `seg_conf_thresh`. You will want to use `TASK="seg"` since you are only focusing on segmentation.
-In streamlit, input your job directories and manually select the ones you want to keep.
-Finally, you can export your selections to csv at the **Process Lists** tab. These csv files will be good for the config option `custom_list_of_wsis`.
+The repository bundles a toy configuration and slides under `example/`. After installing the profile:
 
-```
-streamlit run wsi-pipeline/streamlit.py
-```
-
-![img](assets/comparison_tool.png)
-
-### Port Forwarding on slurm clusters
-
-Running streamlit on slurm clusters requires SSH tunneling to work with. As an example on HPC4Health:
-
-```
-# On h4huhnlogin node
-salloc -t 1:00:00 -c 2 --mem 4G
-
-# On h4h allocated node
-streamlit run wsi-pipeline/streamlit.py --server.port 8501
-
-# On your local computer
-ssh -L 8501:localhost:8501 -J t******uhn@h4huhnlogin1.uhnresearch.ca t******uhn@node***
-
-# Access the webpage with a browser on your local computer
-localhost:8501
+```bash
+wsi-trident-adapter extract \
+  --config example/config.yaml \
+  --task all \
+  --wsi-dir example/slides \
+  --output-dir example/out
 ```
 
-For more details, please read the [docs](https://docs.alliancecan.ca/wiki/SSH_tunnelling) from compute canada.
+Inspect `example/out/` for generated contours, patches, and HDF5 features. Adjust `example/config.yaml` or create your own from `configs/config_template.yaml` for real data.
 
-## Common Errors / FAQ
+---
 
-Q: I cannot git clone this repository.
+## Next steps
 
-A: Since this is a private repository, you'll have to set up a [ssh key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) to clone this repo.
-
-Q: I run something wrong and have to cancel using `scancel` / I want to pause using `scancel` and rerun the script later.
-
-A: When the pipeline runs, it will create `.lock` files to indicate that the slide is being processed, allowing for multiprocessing, you may have to delete these files as well. The safest way is to remove any related files for an incompletely processed slide to avoid the pipeline from skipping it when you rerun the script.
+- Read `configs/config_instructions.md` for each config key.
+- Use `example/run_hpc4health.sh` or `example/run_computecanada.sh` as templates for `sbatch` jobs (replace the final command with the CLI invocation above).
+- Re-run `wsi-trident-adapter-install <profile>` whenever TRIDENT is upgraded or checkpoints are refreshed.

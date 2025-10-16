@@ -1,0 +1,27 @@
+DEFAULTS: dict = {
+    "io": {
+        "wsi_dir": "/path/to/your/slide/images",
+        "process_list": None,
+        "wsi_extension": [".svs", ".tif"],
+        "job_dir": "./out",
+    },
+    "segmentation": {
+        "segmenter": "hest",
+        "seg_conf_thresh": 0.5,
+        "remove_artifacts": False,
+        "remove_holes": False,
+    },
+    "patching": {
+        "magnification": 20,
+        "patch_size": 256,
+        "overlap": 0,
+        "min_tissue_proportion": 0,
+    },
+    "features": {
+        "encoder": "uni_v2",
+        "batch_size": 128,
+    },
+    "system": {
+        "device": "cuda",
+    },
+}
