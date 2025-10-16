@@ -46,7 +46,7 @@ def copy_ckpts(profile: str, force: bool) -> None:
 
         try:
             module = __import__(module_path, fromlist=["load"])
-        except ImportError as exc:  # pragma: no cover - defensive
+        except ImportError as exc:
             raise RuntimeError(f"Unable to import '{module_path}': {exc}")
 
         _copy_manifest(src_json, module, force=force)
