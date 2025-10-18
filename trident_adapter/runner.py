@@ -83,7 +83,9 @@ def run_pipeline(
         threshold_precision=THRESHOLD_PRECISION,
     )
 
-    wsi_tmp_dir = os.getenv("WSI_TMP_DIR", None)
+    # wsi_tmp_dir = os.getenv("WSI_TMP_DIR", None)
+    wsi_tmp_dir = None
+    
 
     if task in {"seg", "all"}:
         for threshold, manifest_path in manifest_paths.items():
