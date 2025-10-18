@@ -37,6 +37,6 @@ def group_process_list_to_manifest(
             threshold_to_manifest_path[threshold] = manifest_path
 
     all_manifest_path = manifest_base / "all.csv"
-    df[manifest_columns].to_csv(all_manifest_path, index=False)
+    df.to_csv(all_manifest_path, index=False)
 
     return threshold_to_manifest_path, all_manifest_path
