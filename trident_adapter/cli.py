@@ -127,7 +127,7 @@ def run_cmd_extract(args: argparse.Namespace) -> int:
     if args.wsi_dir:
         runtime_config["io"]["wsi_dir"] = args.wsi_dir
 
-    if args.output_dir:
+    if args.job_dir:
         runtime_config["io"]["job_dir"] = args.job_dir
 
     if args.process_list:
@@ -183,7 +183,7 @@ def run_cmd_script(args: argparse.Namespace) -> int:
     #SBATCH --mem 32G
     #SBATCH --gres gpu:1
     #SBATCH -A kumargroup_gpu
-    #SBATCH -t 1:00:00:00
+    #SBATCH -t 1-00:00
     #SBATCH -J example
     #SBATCH -o out/stdout.txt
     #SBATCH -e out/stderr.txt
