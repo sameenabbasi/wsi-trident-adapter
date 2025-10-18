@@ -179,6 +179,7 @@ def run_cmd_script(args: argparse.Namespace) -> int:
 
     slurm_script = f"""
     #!/bin/bash
+    #SBATCH -p gpu
     #SBATCH -c 8
     #SBATCH --mem 32G
     #SBATCH --gres gpu:1
