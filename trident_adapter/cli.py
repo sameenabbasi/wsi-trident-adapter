@@ -182,6 +182,7 @@ def run_cmd_script(args: argparse.Namespace) -> int:
     #SBATCH -c 8
     #SBATCH --mem 32G
     #SBATCH --gres gpu:1
+    #SBATCH -A kumargroup_gpu
     #SBATCH -t 1:00:00:00
     #SBATCH -J example
     #SBATCH -o out/stdout.txt
