@@ -12,23 +12,22 @@ from .utils.config.structures import Config
 
 def _configure_pipeline_parser(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
-        "--config",
-        type=Path,
-        required=False,
-        help="Optional YAML config file. CLI flags override values in config.",
-    )
-
-    parser.add_argument(
         "--task",
         choices=["all", "seg", "patch", "feat"],
         default="all",
+        required=True,
         help="Which pipeline stage(s) to run. Default: all.",
+    )
+    
+    parser.add_argument(
+        "--config",
+        type=Path,
+        help="Optional YAML config file. CLI flags override values in config.",
     )
 
     parser.add_argument(
         "--wsi-dir",
         type=Path,
-        required=True,
         help="Path to folder containing whole-slide images (.svs, .tif, ...).",
     )
 
@@ -42,9 +41,8 @@ def _configure_pipeline_parser(parser: argparse.ArgumentParser) -> None:
     )
 
     parser.add_argument(
-        "--output-dir",
+        "--job-dir",
         type=Path,
-        required=True,
         help="Directory where extracted features will be saved.",
     )
 
@@ -130,7 +128,7 @@ def run_cmd_extract(args: argparse.Namespace) -> int:
         runtime_config["io"]["wsi_dir"] = args.wsi_dir
 
     if args.output_dir:
-        runtime_config["io"]["job_dir"] = args.output_dir
+        runtime_config["io"]["job_dir"] = args.job_dir
 
     if args.process_list:
         runtime_config["io"]["process_list"] = args.process_list
@@ -159,17 +157,20 @@ def run_cmd_extract(args: argparse.Namespace) -> int:
 def run_cmd_script(args: argparse.Namespace) -> int:
     flags = []
 
+    if args.task:
+        flags.append(f'--task "{args.task}"')
+
     if args.wsi_dir:
-        flags.append(f'--wsi_dir "{args.wsi_dir}"')
+        flags.append(f'--wsi-dir "{args.wsi_dir}"')
 
     if args.output_dir:
-        flags.append(f'--output_dir "{args.output_dir}"')
+        flags.append(f'--job-dir "{args.job_dir}"')
 
     if args.process_list:
-        flags.append(f'--process_list "{args.process_list}"')
+        flags.append(f'--process-list "{args.process_list}"')
 
     if args.seg_conf_thresh:
-        flags.append(f"--seg_conf_thresh {args.seg_conf_thresh}")
+        flags.append(f"--seg-conf-thresh {args.seg_conf_thresh}")
 
     if args.encoder:
         flags.append(f'--encoder "{args.encoder}"')
