@@ -2,6 +2,7 @@ import argparse
 import sys
 from copy import deepcopy
 from pathlib import Path
+from textwrap import dedent
 
 from . import __version__
 from .config import DEFAULTS
@@ -197,7 +198,7 @@ def run_cmd_script(args: argparse.Namespace) -> int:
     wsi-trident-adapter extract {flags}
     """
 
-    print(slurm_script)
+    print(dedent(slurm_script).strip())
 
     return 0
 
