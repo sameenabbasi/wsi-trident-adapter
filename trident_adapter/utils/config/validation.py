@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from typing import Any
 
 
@@ -46,7 +47,7 @@ def validate_config(config: dict) -> list[str]:
     # io.wsi_dir
     wsi_dir = config["io"]["wsi_dir"]
     if not os.path.exists(wsi_dir):
-        errors.append(f"io.wsi_dir does not exist: {wsi_dir}")
+        errors.append(f"io.wsi_dir does not exist: {Path(wsi_dir).resolve()}")
 
     # segmentation.segmenter
     valid_segmenters = {"hest", "grandqc"}
