@@ -163,7 +163,7 @@ def run_cmd_script(args: argparse.Namespace) -> int:
     if args.wsi_dir:
         flags.append(f'--wsi-dir "{args.wsi_dir}"')
 
-    if args.output_dir:
+    if args.job_dir:
         flags.append(f'--job-dir "{args.job_dir}"')
 
     if args.process_list:
