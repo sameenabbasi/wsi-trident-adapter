@@ -46,9 +46,9 @@ def load_and_validate_process_list(
         if slide_id not in slides:
             raise ValueError(f"wsi '{slide_id}' not found under {wsi_dir}")
 
-    # Validate threshold column (if present)
     selected_columns = ["wsi"]
 
+    # Validate threshold column
     if has_threshold:
         threshold_series = df["threshold"].astype(str).str.strip()
         if threshold_series.eq("").any():
@@ -71,7 +71,7 @@ def load_and_validate_process_list(
 
         selected_columns.append("threshold")
 
-    # Validate mpp column (if present)
+    # Validate mpp column
     if has_mpp:
         mpp_series = df["mpp"].astype(str).str.strip()
         if mpp_series.eq("").any():

@@ -18,4 +18,5 @@ def merge(base: dict, override: dict) -> dict:
             merged[k] = merge(merged[k], v)
         else:
             merged[k] = v
+
     return merged
