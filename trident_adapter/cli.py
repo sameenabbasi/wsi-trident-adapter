@@ -56,7 +56,6 @@ def _configure_pipeline_parser(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--encoder",
         type=str,
-        default="uni_v2",
         help="Patch encoder to use (e.g., uni_v2, resnet50).",
     )
 
