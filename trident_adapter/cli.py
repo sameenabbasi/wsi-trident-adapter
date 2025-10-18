@@ -74,7 +74,7 @@ def _add_extract(subparsers: argparse._SubParsersAction) -> None:
     )
 
     _configure_pipeline_parser(extract_parser)
-    extract_parser.set_defaults(_cmd="extract")
+    extract_parser.set_defaults(cmd="extract")
 
 
 def _add_script(subparsers: argparse._SubParsersAction) -> None:
@@ -88,7 +88,7 @@ def _add_script(subparsers: argparse._SubParsersAction) -> None:
     )
 
     _configure_pipeline_parser(script_parser)
-    script_parser.set_defaults(_cmd="script")
+    script_parser.set_defaults(cmd="script")
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
