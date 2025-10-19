@@ -6,7 +6,7 @@ from textwrap import dedent
 
 from . import __version__
 from .config import DEFAULTS
-from .utils.config.io import load_yaml, merge
+from .utils.config.io import load_yaml, dump_yaml, merge
 from .utils.config.validation import validate_config, validate_yaml_structure
 from .utils.config.structures import Config
 
@@ -19,7 +19,7 @@ def _configure_pipeline_parser(parser: argparse.ArgumentParser) -> None:
         required=True,
         help="Which pipeline stage(s) to run. Default: all.",
     )
-    
+
     parser.add_argument(
         "--config",
         type=Path,
@@ -149,6 +149,7 @@ def run_cmd_extract(args: argparse.Namespace) -> int:
 
     from .runner import run_pipeline
 
+    dump_yaml(runtime_config, Path())
     run_pipeline(config=runtime_config, task=args.task)
 
     return 0

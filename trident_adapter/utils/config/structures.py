@@ -92,3 +92,34 @@ class Config:
             features=features,
             system=system,
         )
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "io": {
+                "wsi_dir": str(self.io.wsi_dir),
+                "job_dir": str(self.io.job_dir),
+                "process_list": (
+                    str(self.io.process_list) if self.io.process_list else None
+                ),
+                "wsi_extension": list(self.io.wsi_extension),
+            },
+            "segmentation": {
+                "segmenter": self.segmentation.segmenter,
+                "seg_conf_thresh": self.segmentation.seg_conf_thresh,
+                "remove_artifacts": self.segmentation.remove_artifacts,
+                "remove_holes": self.segmentation.remove_holes,
+            },
+            "patching": {
+                "magnification": self.patching.magnification,
+                "patch_size": self.patching.patch_size,
+                "overlap": self.patching.overlap,
+                "min_tissue_proportion": self.patching.min_tissue_proportion,
+            },
+            "features": {
+                "encoder": self.features.encoder,
+                "batch_size": self.features.batch_size,
+            },
+            "system": {
+                "device": self.system.device,
+            },
+        }

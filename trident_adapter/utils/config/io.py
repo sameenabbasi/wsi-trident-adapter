@@ -2,6 +2,8 @@ from pathlib import Path
 
 import yaml
 
+from .structures import Config
+
 
 def load_yaml(path: Path | None) -> dict:
     if path is None:
@@ -20,3 +22,9 @@ def merge(base: dict, override: dict) -> dict:
             merged[k] = v
 
     return merged
+
+
+def dump_yaml(config: Config, path: Path) -> None:
+    """Write ``config`` to ``path`` as YAML."""
+    with path.open("w") as handle:
+        yaml.safe_dump(config.to_dict(), handle, sort_keys=False)
