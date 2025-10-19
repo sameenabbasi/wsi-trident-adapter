@@ -161,9 +161,9 @@ def run_cmd_extract(args: argparse.Namespace) -> int:
 
     runtime_config = Config.from_dict(runtime_config)
 
-    config_dir = runtime_config.io.job_dir / JOB_METADATA_DIR / "config"
+    config_dir = runtime_config.io.job_dir / JOB_METADATA_DIR
     config_dir.mkdir(parents=True, exist_ok=True)
-    dump_yaml(runtime_config, config_dir)
+    dump_yaml(runtime_config, config_dir / "config.yaml")
 
     from .runner import run_pipeline
     run_pipeline(config=runtime_config, task=args.task)
