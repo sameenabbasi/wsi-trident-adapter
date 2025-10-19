@@ -1,9 +1,9 @@
 DEFAULTS: dict = {
     "io": {
         "wsi_dir": "/path/to/your/slide/images",
+        "job_dir": "./out",
         "process_list": None,
         "wsi_extension": [".svs", ".tif"],
-        "job_dir": "./out",
     },
     "segmentation": {
         "segmenter": "hest",
