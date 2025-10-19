@@ -1,14 +1,15 @@
 import argparse
 import sys
+import yaml
 from copy import deepcopy
 from pathlib import Path
 from textwrap import dedent
 
 from . import __version__
-from .config import DEFAULTS
+from .utils.config.defaults import DEFAULTS
 from .utils.config.io import load_yaml, dump_yaml, merge
-from .utils.config.validation import validate_config, validate_yaml_structure
 from .utils.config.structures import Config
+from .utils.config.validation import validate_config, validate_yaml_structure
 
 
 def _configure_pipeline_parser(parser: argparse.ArgumentParser) -> None:
@@ -89,6 +90,16 @@ def _add_script(subparsers: argparse._SubParsersAction) -> None:
     script_parser.set_defaults(cmd="script")
 
 
+def _add_config(subparsers: argparse._SubParsersAction) -> None:
+    config_parser = subparsers.add_parser(
+        "config",
+        help="Print the default configuration in YAML format.",
+        description="Print the built-in configuration template.",
+    )
+
+    config_parser.set_defaults(cmd="config")
+
+
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     """Parse CLI arguments for the adapter."""
     parser = argparse.ArgumentParser(
@@ -109,6 +120,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     subparsers = parser.add_subparsers(dest="cmd", required=True)
     _add_extract(subparsers)
     _add_script(subparsers)
+    _add_config(subparsers)
 
     return parser.parse_args(argv)
 
@@ -204,6 +216,11 @@ def run_cmd_script(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_cmd_config(args: argparse.Namespace) -> int:
+    print(yaml.safe_dump(DEFAULTS, sort_keys=False))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
 
@@ -212,6 +229,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "extract":
         return run_cmd_extract(args)
+
+    if args.cmd == "config":
+        return run_cmd_config(args)
 
     print(f"[cli] unknown command: {args.cmd}", file=sys.stderr)
     return 1
