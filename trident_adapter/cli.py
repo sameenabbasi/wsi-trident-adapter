@@ -161,7 +161,7 @@ def run_cmd_extract(args: argparse.Namespace) -> int:
 
     runtime_config = Config.from_dict(runtime_config)
 
-    config_dir = Path(runtime_config.IO.job_dir / JOB_METADATA_DIR / "config")
+    config_dir = runtime_config.io.job_dir / JOB_METADATA_DIR / "config"
     config_dir.mkdir(parents=True, exist_ok=True)
     dump_yaml(runtime_config, config_dir)
 
