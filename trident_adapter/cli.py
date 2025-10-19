@@ -11,6 +11,7 @@ from .utils.config.defaults import DEFAULTS
 from .utils.config.io import load_yaml, dump_yaml, merge
 from .utils.config.structures import Config
 from .utils.config.validation import validate_config, validate_yaml_structure
+from .utils.io import JOB_METADATA_DIR
 
 
 def _configure_pipeline_parser(parser: argparse.ArgumentParser) -> None:
@@ -160,17 +161,11 @@ def run_cmd_extract(args: argparse.Namespace) -> int:
 
     runtime_config = Config.from_dict(runtime_config)
 
-    from .runner import run_pipeline
+    config_dir = Path(runtime_config.IO.job_dir / JOB_METADATA_DIR / "config")
+    config_dir.mkdir(parents=True, exist_ok=True)
+    dump_yaml(runtime_config, config_dir)
 
-    dump_yaml(
-        runtime_config,
-        Path(
-            runtime_config.IO.job_dir
-            / "job_metadata"
-            / "configs"
-            / datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-        ),
-    )
+    from .runner import run_pipeline
     run_pipeline(config=runtime_config, task=args.task)
 
     return 0

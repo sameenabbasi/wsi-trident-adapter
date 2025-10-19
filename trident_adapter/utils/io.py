@@ -1,6 +1,8 @@
+from datetime import datetime, timezone
 from pathlib import Path
 
-import pandas as pd
+RUN_ID = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+JOB_METADATA_DIR = Path("job_metadata") / RUN_ID
 
 
 def list_slide_paths(
@@ -32,5 +34,3 @@ def list_slide_paths(
         slides[slide_key] = entry.resolve()
 
     return slides
-
-

@@ -5,14 +5,13 @@ from pathlib import Path
 from typing import Literal, TYPE_CHECKING
 
 from .utils.config.structures import Config
+from .utils.io import JOB_METADATA_DIR
 from .utils.process_list.loader import (
     create_default_process_list,
     load_and_validate_process_list,
 )
 from .utils.process_list.manifests import group_process_list_to_manifest
 from .utils.process_list.structures import ProcessList
-
-THRESHOLD_PRECISION = 2
 
 if TYPE_CHECKING:
     import trident
@@ -52,7 +51,7 @@ def run_pipeline(
     from .pipeline.patching import run_patching
     from .pipeline.segmentation import run_segmentation
 
-    manifest_dir = config.io.job_dir / "job_metadata" / "process_lists"
+    manifest_dir = config.io.job_dir / JOB_METADATA_DIR / "process_lists"
     manifest_dir.mkdir(parents=True, exist_ok=True)
 
     if config.io.process_list:
@@ -80,12 +79,10 @@ def run_pipeline(
     manifest_paths, all_slides_manifest = group_process_list_to_manifest(
         process_list,
         manifest_dir,
-        threshold_precision=THRESHOLD_PRECISION,
     )
 
     # wsi_tmp_dir = os.getenv("WSI_TMP_DIR", None)
     wsi_tmp_dir = None
-    
 
     if task in {"seg", "all"}:
         for threshold, manifest_path in manifest_paths.items():
