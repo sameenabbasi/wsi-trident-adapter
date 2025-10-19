@@ -217,7 +217,12 @@ def run_cmd_script(args: argparse.Namespace) -> int:
 
 
 def run_cmd_config(args: argparse.Namespace) -> int:
-    print(yaml.safe_dump(DEFAULTS, sort_keys=False))
+    print(
+        yaml.safe_dump(
+            DEFAULTS, sort_keys=False, indent=4, default_flow_style=False
+        )
+    )
+
     return 0
 
 

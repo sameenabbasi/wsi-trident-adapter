@@ -27,4 +27,10 @@ def merge(base: dict, override: dict) -> dict:
 def dump_yaml(config: Config, path: Path) -> None:
     """Write ``config`` to ``path`` as YAML."""
     with path.open("w") as handle:
-        yaml.safe_dump(config.to_dict(), handle, sort_keys=False)
+        yaml.safe_dump(
+            config.to_dict(),
+            handle,
+            sort_keys=False,
+            indent=4,
+            default_flow_style=False,
+        )
