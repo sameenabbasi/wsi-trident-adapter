@@ -52,7 +52,7 @@ def run_pipeline(
     from .pipeline.patching import run_patching
     from .pipeline.segmentation import run_segmentation
 
-    manifest_dir = config.io.job_dir / "process_lists"
+    manifest_dir = config.io.job_dir / "job_metadata" / "process_lists"
     manifest_dir.mkdir(parents=True, exist_ok=True)
 
     if config.io.process_list:

@@ -2,6 +2,7 @@ import argparse
 import sys
 import yaml
 from copy import deepcopy
+from datetime import datetime, timezone
 from pathlib import Path
 from textwrap import dedent
 
@@ -161,7 +162,15 @@ def run_cmd_extract(args: argparse.Namespace) -> int:
 
     from .runner import run_pipeline
 
-    dump_yaml(runtime_config, Path())
+    dump_yaml(
+        runtime_config,
+        Path(
+            runtime_config.IO.job_dir
+            / "job_metadata"
+            / "configs"
+            / datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        ),
+    )
     run_pipeline(config=runtime_config, task=args.task)
 
     return 0
