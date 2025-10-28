@@ -15,13 +15,12 @@ Adapter layer around [TRIDENT](https://github.com/mahmoodlab/TRIDENT) that provi
 ## Create the virtual environment
 
 ```bash
-module spider python3
 module load python3/3.10.9
 python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-`module spider` helps you discover which Python modules and versions exist on the cluster; any Python 3.9+ module is fine to load before creating the virtual environment.
+`module spider python3` helps you discover which Python modules and versions exist on the cluster; any Python 3.9+ module is fine to load before creating the virtual environment.
 
 ---
 
