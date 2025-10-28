@@ -18,7 +18,6 @@ Adapter layer around [TRIDENT](https://github.com/mahmoodlab/TRIDENT) that provi
 # activate your virtual environment first
 pip install --upgrade pip
 pip install "git+ssh://git@github.com/haydenych/wsi-trident-adapter.git@dev"
-# if SSH is unavailable, use an HTTPS URL with a personal access token
 ```
 
 Installing exposes two console scripts:
@@ -52,22 +51,10 @@ You should see the `extract` subcommand along with the core options `--config`, 
 
 ## Run a quick example
 
-The repository bundles a toy configuration and slides under `example/`. After installing the profile:
+The repository bundles a simple configuration and slides under `example/`. After installing the profile:
 
 ```bash
-wsi-trident-adapter extract \
-  --config example/config.yaml \
-  --task all \
-  --wsi-dir example/slides \
-  --output-dir example/out
+sbatch example/run_hpc4health.sh 
 ```
 
 Inspect `example/out/` for generated contours, patches, and HDF5 features. Adjust `example/config.yaml` or create your own from `configs/config_template.yaml` for real data.
-
----
-
-## Next steps
-
-- Read `configs/config_instructions.md` for each config key.
-- Use `example/run_hpc4health.sh` or `example/run_computecanada.sh` as templates for `sbatch` jobs (replace the final command with the CLI invocation above).
-- Re-run `wsi-trident-adapter-install <profile>` whenever TRIDENT is upgraded or checkpoints are refreshed.
