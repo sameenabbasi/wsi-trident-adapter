@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ..utils.config.structures import Config
+from ..core.config.structures import Config
 
 if TYPE_CHECKING:
     import trident
