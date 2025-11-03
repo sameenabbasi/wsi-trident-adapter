@@ -71,7 +71,7 @@ if [[ "$TASK" == "<TASK>" || "$CONFIG_PATH" == "<CONFIG_PATH>" ]]; then
 fi
 
 # ---- Asset paths ----
-WSI_ASSETS_ROOT="$(wsi-trident-adapter assets root)"
+WSI_ASSETS_ROOT="$(wsi-trident-adapter profile root)"
 export TRIDENT_HOME="${WSI_ASSETS_ROOT}/weights/trident"
 export TORCH_HOME="${WSI_ASSETS_ROOT}/weights/torch"
 export HF_HOME="${WSI_ASSETS_ROOT}/weights/huggingface"
