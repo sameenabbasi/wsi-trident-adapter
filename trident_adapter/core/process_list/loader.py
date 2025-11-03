@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from ..io import list_slide_paths
+from ...utils.io import list_slide_paths
 from .structures import ProcessList
 
 
