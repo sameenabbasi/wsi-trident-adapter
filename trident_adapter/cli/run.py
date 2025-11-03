@@ -71,7 +71,6 @@ def _run_run(args) -> None:
         config=runtime_config,
         task=args.task,
         run_dir=run_directory,
-        run_id=run_id,
     )
 
 
