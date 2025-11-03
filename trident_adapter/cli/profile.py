@@ -84,11 +84,13 @@ def run_cmd_profile_modules(args) -> int:
         print(f"[error] {exc}", file=sys.stderr)
         return 1
 
+    is_tty = sys.stdout.isatty()
     if modules:
         for module in modules:
             print(module)
-    else:
-        print("(none)")
+    elif is_tty:
+        print("# No modules configured for this profile.")
+        print("# Environment likely already provides required dependencies.")
 
     return 0
 
