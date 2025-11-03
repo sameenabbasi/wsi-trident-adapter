@@ -51,8 +51,15 @@ def _run_example_fetch(args) -> Path:
         raise CLIError("Source and destination paths are identical.")
 
     shutil.copytree(source, target, dirs_exist_ok=True)
+    for path in target.rglob("*"):
+        try:
+            path.chmod(0o640 if path.is_file() else 0o750)
+        except PermissionError as exc:
+            raise CLIError(
+                f"Copied example to {target}, but failed to set permissions on {path}: {exc}"
+            ) from exc
     try:
-        target.chmod(0o700)
+        target.chmod(0o750)
     except PermissionError as exc:
         raise CLIError(
             f"Copied example to {target}, but failed to set permissions to 700: {exc}"
