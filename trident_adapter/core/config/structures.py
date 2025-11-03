@@ -55,8 +55,8 @@ class Config:
         sys_data = data["system"]
 
         io = cls.IO(
-            wsi_dir=Path(io_data["wsi_dir"]),
-            job_dir=Path(io_data["job_dir"]),
+            wsi_dir=Path(io_data["wsi_dir"]).expanduser().resolve(),
+            job_dir=Path(io_data["job_dir"]).expanduser().resolve(),
             process_list=(
                 Path(io_data["process_list"])
                 if io_data.get("process_list")
