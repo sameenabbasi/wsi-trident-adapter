@@ -20,26 +20,6 @@
 set -euo pipefail
 umask 002
 
-# ---- Sanity check: ensure wsi-trident-adapter is available ----
-if ! command -v wsi-trident-adapter &> /dev/null; then
-    echo "[ERROR] Python environment not loaded or adapter not installed." >&2
-    echo "        Please activate your environment before submission." >&2
-    exit 1
-fi
-
-# ==============================================================
-#   LOAD MODULES (Compute Canada)
-# ==============================================================
-
-if command -v wsi-trident-adapter &>/dev/null; then
-    while read -r mod; do
-        [[ -n "$mod" ]] && module load "$mod"
-    done < <(wsi-trident-adapter profile modules)
-else
-    echo "[ERROR] wsi-trident-adapter command not found (env not activated?)" >&2
-    exit 1
-fi
-
 # ==============================================================
 #   USER-DEFINED INPUTS  —  EDIT THESE BEFORE SUBMITTING
 # ==============================================================
@@ -67,13 +47,30 @@ CONFIG_PATH="<CONFIG_PATH>"
 #   END OF USER INPUTS
 # ==============================================================
 
+# ---- Sanity check: ensure wsi-trident-adapter is available ----
+if ! command -v wsi-trident-adapter &> /dev/null; then
+    echo "[ERROR] Python environment not loaded or adapter not installed." >&2
+    echo "        Please activate your environment before submission." >&2
+    exit 1
+fi
+
+# ---- Load profile modules ----
+if command -v wsi-trident-adapter &>/dev/null; then
+    while read -r mod; do
+        [[ -n "$mod" ]] && module load "$mod"
+    done < <(wsi-trident-adapter profile modules)
+else
+    echo "[ERROR] wsi-trident-adapter command not found (env not activated?)" >&2
+    exit 1
+fi
+
 # ---- Guard for unedited placeholders ----
 if [[ "$TASK" == "<TASK>" || "$CONFIG_PATH" == "<CONFIG_PATH>" ]]; then
     echo "[ERROR] Please edit TASK and CONFIG_PATH before sbatch." >&2
     exit 1
 fi
 
-# ---- Asset paths (read-only, version-locked) ----
+# ---- Asset paths ----
 WSI_ASSETS_ROOT="$(wsi-trident-adapter assets root)"
 export TRIDENT_HOME="${WSI_ASSETS_ROOT}/weights/trident"
 export TORCH_HOME="${WSI_ASSETS_ROOT}/weights/torch"
