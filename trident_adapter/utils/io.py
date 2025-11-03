@@ -1,8 +1,4 @@
-from datetime import datetime, timezone
 from pathlib import Path
-
-RUN_ID = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-JOB_METADATA_DIR = Path("job_metadata") / RUN_ID
 
 
 def list_slide_paths(

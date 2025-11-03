@@ -2,16 +2,15 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Literal, TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
-from .utils.config.structures import Config
-from .utils.io import JOB_METADATA_DIR
-from .utils.process_list.loader import (
+from .core.config.structures import Config
+from .core.process_list.loader import (
     create_default_process_list,
     load_and_validate_process_list,
 )
-from .utils.process_list.manifests import group_process_list_to_manifest
-from .utils.process_list.structures import ProcessList
+from .core.process_list.manifests import group_process_list_to_manifest
+from .core.process_list.structures import ProcessList
 
 if TYPE_CHECKING:
     import trident
@@ -46,12 +45,15 @@ def _initialize_processor(
 def run_pipeline(
     config: Config,
     task: Literal["all", "seg", "patch", "feat"],
-):
+    *,
+    run_dir: Path,
+) -> None:
+
     from .pipeline.features import run_feature_extraction
     from .pipeline.patching import run_patching
     from .pipeline.segmentation import run_segmentation
 
-    manifest_dir = config.io.job_dir / JOB_METADATA_DIR / "process_lists"
+    manifest_dir = run_dir / "process_lists"
     manifest_dir.mkdir(parents=True, exist_ok=True)
 
     if config.io.process_list:
@@ -81,7 +83,6 @@ def run_pipeline(
         manifest_dir,
     )
 
-    # wsi_tmp_dir = os.getenv("WSI_TMP_DIR", None)
     wsi_tmp_dir = None
 
     if task in {"seg", "all"}:
