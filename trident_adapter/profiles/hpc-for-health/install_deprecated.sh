@@ -13,3 +13,4 @@ fi
 
 python -m trident_adapter.scripts.copy_ckpts "$profile"
 
+# TODO Will be removed

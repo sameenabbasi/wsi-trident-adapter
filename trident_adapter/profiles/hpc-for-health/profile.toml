@@ -1,0 +1,15 @@
+name = "hpc-for-health"
+
+# ---------------------
+# Environment paths
+# ---------------------
+[env]
+ASSETS_ROOT   = "/cluster/projects/kumargroup/wsi-trident-adapter-assets"
+TRIDENT_HOME  = "/cluster/projects/kumargroup/wsi-trident-adapter-assets/weights/trident"
+TORCH_HOME    = "/cluster/projects/kumargroup/wsi-trident-adapter-assets/weights/torch"
+HF_HOME       = "/cluster/projects/kumargroup/wsi-trident-adapter-assets/weights/huggingface"
+
+# ---------------------
+# Module requirements
+# ---------------------
+modules = []
