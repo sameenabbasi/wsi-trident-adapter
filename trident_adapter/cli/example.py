@@ -36,16 +36,18 @@ def _run_example_fetch(args) -> Path:
         source = resolve_example_path(profile)
     except RuntimeError as exc:
         raise CLIError(str(exc)) from exc
+
     if not source.exists():
         raise CLIError(f"Example directory not found: {source}")
+    source = source.resolve()
 
-    dest_root = Path(args.dest)
+    dest_root = Path(args.dest).expanduser()
     if dest_root.exists() and not dest_root.is_dir():
         raise CLIError(f"Destination is not a directory: {dest_root}")
     dest_root.mkdir(parents=True, exist_ok=True)
 
-    target = dest_root / source.name
-    if source.resolve() == target.resolve():
+    target = (dest_root / source.name).resolve()
+    if source == target:
         raise CLIError("Source and destination paths are identical.")
 
     shutil.copytree(source, target, dirs_exist_ok=True)
