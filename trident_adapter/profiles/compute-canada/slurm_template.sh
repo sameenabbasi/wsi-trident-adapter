@@ -55,14 +55,9 @@ if ! command -v wsi-trident-adapter &> /dev/null; then
 fi
 
 # ---- Load profile modules ----
-if command -v wsi-trident-adapter &>/dev/null; then
-    while read -r mod; do
-        [[ -n "$mod" ]] && module load "$mod"
-    done < <(wsi-trident-adapter profile modules)
-else
-    echo "[ERROR] wsi-trident-adapter command not found (env not activated?)" >&2
-    exit 1
-fi
+while read -r mod; do
+    [[ -n "$mod" ]] && module load "$mod"
+done < <(wsi-trident-adapter profile modules)
 
 # ---- Guard for unedited placeholders ----
 if [[ "$TASK" == "<TASK>" || "$CONFIG_PATH" == "<CONFIG_PATH>" ]]; then
