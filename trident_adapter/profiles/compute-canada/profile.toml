@@ -1,0 +1,29 @@
+name = "compute-canada"
+
+# ---------------------
+# Environment paths
+# ---------------------
+[env]
+ASSETS_ROOT = "/project/def-sushant/wsi-trident-adapter-assets"
+TRIDENT_HOME = "/project/def-sushant/wsi-trident-adapter-assets/weights/trident"
+TORCH_HOME = "/project/def-sushant/wsi-trident-adapter-assets/weights/torch"
+HF_HOME = "/project/def-sushant/wsi-trident-adapter-assets/weights/huggingface"
+
+# ---------------------
+# Module requirements
+# ---------------------
+modules = [
+    "StdEnv/2023",
+    "python/3.10.13",
+    "scipy-stack/2024b",
+    "hdf5/1.14.5",
+    "arrow/18.1.0",
+    "openslide/4.0.0",
+    "opencv/4.10.0",
+    "cuda/12.2"
+]
+
+# ---------------------
+# Notes
+# ---------------------
+notes = []

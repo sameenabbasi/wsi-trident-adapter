@@ -1,0 +1,31 @@
+# Core ML stack
+torch>=2.2,<3.0
+timm==0.9.16
+segmentation-models-pytorch>=0.3,<0.6
+transformers>=4.36,<4.50
+fairscale>=0.4,<0.5
+timm_ctp>=0.5,<0.6
+huggingface_hub>=0.20,<1.0
+
+# Python utilities
+tqdm>=4.50,<5.0
+ipywidgets>=8.0,<9.0
+matplotlib>=3.8,<3.11
+pillow>=10.0,<12.0
+addict>=2.4,<2.5
+environs==11.0.0
+sacremoses==0.1.1
+einops_exts>=0.0.1,<0.0.5
+
+# Scientific computing
+h5py
+pyarrow
+
+# WSI / geospatial / imaging
+openslide-python
+geopandas>=1.0,<1.2
+
+# External research dependencies
+TRIDENT @ git+https://github.com/mahmoodlab/TRIDENT.git@v0.2.2
+conch @ git+https://github.com/Mahmoodlab/CONCH.git
+musk @ git+https://github.com/lilab-stanford/MUSK
