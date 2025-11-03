@@ -13,3 +13,8 @@ HF_HOME       = "/cluster/projects/kumargroup/wsi-trident-adapter-assets/weights
 # Module requirements
 # ---------------------
 modules = []
+
+# ---------------------
+# Notes
+# ---------------------
+notes = []
