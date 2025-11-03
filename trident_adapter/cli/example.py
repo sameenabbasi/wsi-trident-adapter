@@ -49,6 +49,13 @@ def _run_example_fetch(args) -> Path:
         raise CLIError("Source and destination paths are identical.")
 
     shutil.copytree(source, target, dirs_exist_ok=True)
+    try:
+        target.chmod(0o700)
+    except PermissionError as exc:
+        raise CLIError(
+            f"Copied example to {target}, but failed to set permissions to 700: {exc}"
+        ) from exc
+
     return target
 
 
@@ -62,5 +69,5 @@ def run_cmd_example_fetch(args) -> int:
         print(f"[error] {exc}", file=sys.stderr)
         return 1
 
-    print(target)
+    print(f"Example dataset copied to {target}")
     return 0
