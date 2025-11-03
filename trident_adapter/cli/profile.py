@@ -84,8 +84,12 @@ def run_cmd_profile_modules(args) -> int:
         print(f"[error] {exc}", file=sys.stderr)
         return 1
 
-    for module in modules:
-        print(module)
+    if modules:
+        for module in modules:
+            print(module)
+    else:
+        print("(none)")
+
     return 0
 
 

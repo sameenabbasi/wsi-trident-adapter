@@ -1,15 +1,6 @@
 name = "compute-canada"
 
 # ---------------------
-# Environment paths
-# ---------------------
-[env]
-ASSETS_ROOT = "/project/def-sushant/wsi-trident-adapter-assets"
-TRIDENT_HOME = "/project/def-sushant/wsi-trident-adapter-assets/weights/trident"
-TORCH_HOME = "/project/def-sushant/wsi-trident-adapter-assets/weights/torch"
-HF_HOME = "/project/def-sushant/wsi-trident-adapter-assets/weights/huggingface"
-
-# ---------------------
 # Module requirements
 # ---------------------
 modules = [
@@ -27,3 +18,12 @@ modules = [
 # Notes
 # ---------------------
 notes = []
+
+# ---------------------
+# Environment paths
+# ---------------------
+[env]
+ASSETS_ROOT = "/project/def-sushant/wsi-trident-adapter-assets"
+TRIDENT_HOME = "/project/def-sushant/wsi-trident-adapter-assets/weights/trident"
+TORCH_HOME = "/project/def-sushant/wsi-trident-adapter-assets/weights/torch"
+HF_HOME = "/project/def-sushant/wsi-trident-adapter-assets/weights/huggingface"
