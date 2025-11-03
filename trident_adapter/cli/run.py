@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import sys
 from copy import deepcopy
+import traceback
 
 from .common import CLIError, print_cli_error
 from ..core.profile import get_active_profile, resolve_profile_dir
@@ -82,6 +83,6 @@ def run_cmd_run(args) -> int:
         return exc.exit_code
     except Exception as exc:
         print(f"[error] {exc}", file=sys.stderr)
+        traceback.print_exc()
         return 1
-
     return 0
