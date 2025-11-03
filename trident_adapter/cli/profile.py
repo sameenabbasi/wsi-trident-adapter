@@ -113,7 +113,7 @@ def _run_profile_show(args) -> list[str]:
 
     lines.append("")
     path_items = [
-        (key.lower(), value)
+        (key, value)
         for key, value in env.items()
         if key.upper() != "ASSETS_ROOT"
     ]
