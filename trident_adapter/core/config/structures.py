@@ -15,6 +15,7 @@ class Config:
         job_dir: Path
         process_list: Path | None
         wsi_extension: tuple[str, ...]
+        run_id: str | None = None
 
     @dataclass(frozen=True, slots=True)
     class Segmentation:
@@ -62,6 +63,7 @@ class Config:
                 else None
             ),
             wsi_extension=tuple(io_data.get("wsi_extension", ())),
+            run_id=io_data.get("run_id"),
         )
 
         segmentation = cls.Segmentation(
@@ -102,6 +104,7 @@ class Config:
                     str(self.io.process_list) if self.io.process_list else None
                 ),
                 "wsi_extension": list(self.io.wsi_extension),
+                "run_id": self.io.run_id,
             },
             "segmentation": {
                 "segmenter": self.segmentation.segmenter,
