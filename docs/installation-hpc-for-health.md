@@ -68,13 +68,13 @@ paths.
 To view the resolved environment values after setup, run:
 
 ```bash
-wsi-trident-adapter profile env
+wsi-trident-adapter profile show
 ```
 
 No module loads are required because the profile assumes the cluster image
 already provides CUDA, OpenSlide, and supporting libraries.
 
-## 5. Validate the installation
+## 5. Run the bundled example
 
 Because the example assets live under `/cluster/projects/kumargroup`, they are
 accessible only from data nodes (e.g., `h4huhndata1`). Request a small
@@ -83,14 +83,13 @@ allocation and run the fetch there:
 ```bash
 salloc -t 1:00:00 -c 1 --mem=4G
 # inside the allocation
-wsi-trident-adapter profile show
 wsi-trident-adapter example fetch --dest ~/wsi-trident-adapter/example
 ```
 
 Check that the copied directory inherits `750/640` permissions and contains
 sample slides plus `config.yaml`.
 
-## 6. Submit a test job (optional)
+## 6. Submit a test job
 
 The example bundle already includes `run.sh`. Edit that file to point its
 `source /path/to/.venv/bin/activate` line at your virtual environment. If you
