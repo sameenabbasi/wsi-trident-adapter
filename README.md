@@ -1,7 +1,8 @@
 # wsi-trident-adapter
 
-Lightweight tooling that wraps TRIDENT for offline HPC clusters and local environments.
-
+Lightweight tooling that wraps [TRIDENT](https://github.com/mahmoodlab/TRIDENT) for offline HPC 
+clusters and local environments. TRIDENT provides the core segmentation/patching/feature pipeline; this 
+adapter focuses on HPC packaging and reproducibility.
 ## Profiles
 
 - `hpc-for-health`
@@ -15,6 +16,19 @@ Lightweight tooling that wraps TRIDENT for offline HPC clusters and local enviro
   module lists, and example pipelines tailored to its cluster.
 - **Stable CLI wrapper:** commands such as `profile`, `config`, `example`, and
   `run` expose repeatable workflows, insulating you from TRIDENT API changes.
+
+## Updating
+
+Because the adapter is installed directly from Git tags (not PyPI), `pip install -U` only fetches a new version when you specify a newer tag explicitly.
+To upgrade, re-run 
+```bash
+pip install -U "git+https://github.com/haydenych/wsi-trident-adapter.git@vX.Y.Z"
+```
+after replacing `vX.Y.Z` with the desired release, and then rerun
+```bash
+wsi-trident-adapter-install setup <profile>
+```
+so the active profile and checkpoints stay in sync.
 
 ### Can you run TRIDENT directly?
 

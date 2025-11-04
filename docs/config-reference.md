@@ -39,19 +39,12 @@ slides automatically by scanning `io.wsi_dir`.
 
 | Key | Type | Description |
 | --- | ---- | ----------- |
-| `segmenter` | str | TRIDENT segmenter name (e.g., `hest`, `ot`). |
+| `segmenter` | str | TRIDENT segmenter name (e.g., `hest`, `grandqc`). |
 | `seg_conf_thresh` | float | Default confidence threshold used when no per-slide threshold exists. Must lie in (0, 1). |
-| `remove_artifacts` | bool | If `true`, removes small connected components. |
-| `remove_holes` | bool | If `true`, fills interior holes in segmentation masks. |
+| `remove_artifacts` | bool | Runs the optional artifact-cleaning pass (read https://www.nature.com/articles/s41467-024-54769-y for details). |
+| `remove_holes` | bool | Drop patches that lie above interior holes in the segmentation mask. |
 
-Typical choices:
-
-- `segmenter`: `hest` (default) or `grandqc` for fast H&E segmentation.
-- `seg_conf_thresh`: `0.3`–`0.6`; lower retains more tissue.
-- `remove_artifacts` / `remove_holes`: enable when downstream tasks are
-  sensitive to small artifacts.
-
-Example adjustment:
+Example:
 
 ```yaml
 segmentation:

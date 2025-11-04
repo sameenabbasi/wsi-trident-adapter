@@ -5,9 +5,9 @@ cluster and installing the adapter with the `hpc-for-health` profile.
 
 ## Prerequisites
 
-- Asset bundle staged at `/cluster/projects/kumargroup/wsi-trident-adapter-assets`
-  (contact the maintainers if it is missing).
-- Recent Python module (`module avail python`)
+-   Asset bundle staged at `/cluster/projects/kumargroup/wsi-trident-adapter-assets`
+    (contact the maintainers if it is missing).
+-   Recent Python module (`module avail python`)
 
 ## 1. Create a project directory
 
@@ -105,11 +105,7 @@ Monitor with `squeue` and inspect logs under `out/`.
 
 ## Operational notes
 
-- Avoid issuing repeated CLI commands on `h4huhnlogin1`; the tools spawn Python
-  processes and can burden the shared login node.
-- Use `salloc` or job submissions for any workflow that might take longer than
-  a few seconds or touches shared storage under `/cluster/projects`.
-
-You now have a ready-to-use adapter environment on HPC4Health. Repeat the
-process in a fresh virtual environment whenever you upgrade Python or reinstall
-the package.
+-   Avoid issuing repeated CLI commands on `h4huhnlogin1`; the tools spawn Python
+    processes and can burden the shared login node.
+-   Use `salloc` or job submissions for any workflow that might take longer than
+    a few seconds or touches shared storage under `/cluster/projects`.
