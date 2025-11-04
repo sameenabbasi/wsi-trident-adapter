@@ -33,7 +33,7 @@ If you prefer Conda or Mamba, activate that environment instead of creating a
 ## 3. Install the adapter
 
 ```bash
-pip install "git+https://github.com/haydenych/wsi-trident-adapter.git@v0.2.0"
+pip install "git+ssh://git@github.com/haydenych/wsi-trident-adapter.git@v0.2.0"
 ```
 
 Verify that the console scripts are available:
