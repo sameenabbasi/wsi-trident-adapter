@@ -1,72 +1,44 @@
-# WSI Trident Adapter
+# wsi-trident-adapter
 
-Adapter layer around [TRIDENT](https://github.com/mahmoodlab/TRIDENT) that provides a stable CLI for offline and cluster workloads. Use this README for the current development workflow while we stabilise the package.
+Lightweight tooling that wraps TRIDENT for offline HPC clusters and local environments.
 
----
+## Profiles
 
-## Prerequisites
+- `hpc-for-health`
+- `compute-canada` (TBD)
 
-- Python 3.9+
-- Access to the private repository (`git@github.com:haydenych/wsi-trident-adapter.git`)
-- A virtual environment with the CUDA/OpenSlide stack required by your target cluster (load the modules before installing if needed)
+## Why use this adapter?
 
----
+- **Offline-friendly asset management:** the adapter keeps large checkpoints on
+  shared storage and wires environment variables automatically.
+- **Profile-aware scripts:** each profile ships ready-made SLURM templates,
+  module lists, and example pipelines tailored to its cluster.
+- **Stable CLI wrapper:** commands such as `profile`, `config`, `example`, and
+  `run` expose repeatable workflows, insulating you from TRIDENT API changes.
 
-## Create the virtual environment
+### Can you run TRIDENT directly?
 
-```bash
-module load python3/3.10.9
-python3 -m venv .venv
-source .venv/bin/activate
-```
+**Yes and no.** TRIDENT remains the underlying engine, so you can still drive it
+directly. On clusters without internet access (e.g., HPC4Health), you would
+otherwise need to:
 
-`module spider python3` helps you discover which Python modules and versions exist on the cluster; any Python 3.9+ module is fine to load before creating the virtual environment.
+- download checkpoints elsewhere  
+- place them in an accessible location (e.g., XDG-cache directory, shared project
+  storage, or your own custom path)  
+- pass the weights path into TRIDENT or configure its cache manually  
+- manage module stacks  
+- hand-write SLURM scripts  
 
----
+The adapter automates these chores with profile-aware commands, consistent asset
+locations, and SLURM templates—so you can focus on the pipeline itself rather
+than infrastructure details.
 
-## Install (development branch)
-
-```bash
-# activate your virtual environment first
-pip install --upgrade pip
-pip install "git+ssh://git@github.com/haydenych/wsi-trident-adapter.git@dev"
-```
-
-Installing exposes two console scripts:
-
-- `wsi-trident-adapter-install` – copies profile assets (checkpoints, wheels, requirements) into your environment
-- `wsi-trident-adapter` – runs the adapter CLI around TRIDENT
-
----
-
-## Configure the environment
-
-Run the profile installer once per virtual environment. Pick the profile that matches your cluster; `hpc-for-health` is the current default.
-
-```bash
-wsi-trident-adapter-install hpc-for-health
-```
-
-The command copies checkpoint manifests into the vendored TRIDENT modules and installs any profile-specific wheels listed in `trident_adapter/profiles/<profile>/requirements.txt`.
+On sites with internet access (e.g., many Compute Canada environments), you *can*
+run TRIDENT directly. However, the adapter still provides a known-good setup,
+consistent directory layout, and reproducible job templates so teams can
+standardise their workflow.
 
 ---
 
-## Sanity check the CLI
-
-```bash
-wsi-trident-adapter --help
-```
-
-You should see the `extract` subcommand along with the core options `--config`, `--task`, `--wsi-dir`, and `--output-dir`.
-
----
-
-## Run a quick example
-
-The repository bundles a simple configuration and slides under `example/`. After installing the profile:
-
-```bash
-sbatch example/run_hpc4health.sh 
-```
-
-Inspect `example/out/` for generated contours, patches, and HDF5 features. Adjust `example/config.yaml` or create your own from `configs/config_template.yaml` for real data.
+Installation, quick start instructions, and environment-specific guides (run output 
+structure, rerun guidance, etc.) live in [`docs/`](docs/).
