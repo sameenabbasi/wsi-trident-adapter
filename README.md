@@ -3,6 +3,7 @@
 Lightweight tooling that wraps [TRIDENT](https://github.com/mahmoodlab/TRIDENT) for offline HPC 
 clusters and local environments. TRIDENT provides the core segmentation/patching/feature pipeline; this 
 adapter focuses on HPC packaging and reproducibility.
+
 ## Profiles
 
 - `hpc-for-health`
@@ -56,3 +57,20 @@ standardise their workflow.
 
 Installation, quick start instructions, and environment-specific guides (run output 
 structure, rerun guidance, etc.) live in [`docs/`](docs/).
+
+# Notice: Version 0.1.0 (Legacy Release)
+
+The v0.1.0 release of **wsi-trident-adapter** is now deprecated.
+
+Version **0.2.0** introduces a complete redesign of the adapter structure, 
+including new CLI entry points, reorganized modules (`core/`, `utils/`), and 
+profile-specific installation flows.
+
+Known issues in v0.1.0 — including incomplete ResNet-50 feature extraction, 
+path resolution errors, and missing HPC environment profiles — will **not** be 
+fixed in this branch.
+
+Please upgrade to the latest stable release:
+
+```bash
+pip install "git+https://github.com/haydenych/wsi-trident-adapter.git@v0.2.0"
