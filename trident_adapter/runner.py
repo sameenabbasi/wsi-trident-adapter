@@ -78,7 +78,7 @@ def run_pipeline(
             has_mpp=process_list.has_mpp,
         )
 
-    manifest_paths, all_slides_manifest = group_process_list_to_manifest(
+    manifest_paths, all_slides_manifest_path = group_process_list_to_manifest(
         process_list,
         manifest_dir,
     )
@@ -102,7 +102,7 @@ def run_pipeline(
         processor = _initialize_processor(
             config,
             wsi_tmp_dir=wsi_tmp_dir,
-            manifest_path=all_slides_manifest,
+            manifest_path=all_slides_manifest_path,
         )
         run_patching(config, processor)
 
@@ -110,6 +110,6 @@ def run_pipeline(
         processor = _initialize_processor(
             config,
             wsi_tmp_dir=wsi_tmp_dir,
-            manifest_path=all_slides_manifest,
+            manifest_path=all_slides_manifest_path,
         )
         run_feature_extraction(config, processor)
