@@ -87,7 +87,7 @@ Subcommands:
 | ------- | ------ |
 | `profile root` | Absolute path to the profile assets root. |
 | `profile env` | Key-value pairs (`KEY=value`) excluding derived paths. |
-| `profile modules` | Module list used by SLURM templates. Prints helpful comments when run interactively and no modules are configured. |
+| `profile modules` | Module list used by SLURM templates. |
 | `profile show` | Summary containing modules, path hints, and profile notes. |
 
 ### `example`
@@ -97,7 +97,7 @@ Work with the bundled example dataset.
 | Command | Description |
 | ------- | ----------- |
 | `example path` | Print the canonical example directory. |
-| `example fetch [--dest PATH]` | Copy the example into `PATH` (defaults to current directory). The command sets permissions to `750/640` so shared groups can read the files. |
+| `example fetch [--dest PATH]` | Copy the example into `PATH` (defaults to current directory). |
 
 ---
 
@@ -125,6 +125,3 @@ Typical workflow:
 wsi-trident-adapter-install list-profiles
 wsi-trident-adapter-install setup hpc-for-health
 ```
-
-After `setup`, the primary CLI (`wsi-trident-adapter`) knows which profile to
-use until you re-run `setup` with a different name.
