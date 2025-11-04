@@ -5,24 +5,9 @@
 **/.DS_Store
 **/._*
 
-# Configs
-configs/*
-!configs/config_instructions.md
-!configs/config_template.yaml
-
-# Scripts
-scripts/**/*
-!scripts/hpc4health/
-!scripts/computecanada/
-!scripts/**/setup.sh
-!scripts/**/*_template.sh
-
 # Builds
 .venv/*
 **/__pycache__/
 *.pyc
 build/
 **/*.egg-info
-
-# Outputs
-example/out/*
