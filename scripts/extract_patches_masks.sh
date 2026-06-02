@@ -17,29 +17,24 @@
 set -euo pipefail
 umask 002
 
+source ~/miniforge3/bin/activate
+
 # ==============================================================
 #   EDIT BEFORE SUBMITTING
 # ==============================================================
 
 # Path to your GeoJSON annotation files (one per slide, matched by stem)
-ANNOT_DIR="<PATH_TO_GEOJSON_DIR>"
+ANNOT_DIR="/cluster/projects/kumargroup/ch-fibrosis"
 
 # Path to this repo on the cluster
-REPO_DIR="<PATH_TO_WSI_TRIDENT_ADAPTER_REPO>"
+REPO_DIR="/cluster/home/t140585uhn/wsi-trident-sean"
 
 # Python environment (virtualenv or conda — keep one, remove the other)
-source "${REPO_DIR}/.venv/bin/activate"
-# conda activate your-env
+conda activate methylcdm
 
 # ==============================================================
 #   END OF USER INPUTS
 # ==============================================================
-
-# ---- Guard for unedited placeholders ----
-if [[ "$ANNOT_DIR" == "<PATH_TO_GEOJSON_DIR>" || "$REPO_DIR" == "<PATH_TO_WSI_TRIDENT_ADAPTER_REPO>" ]]; then
-    echo "[ERROR] Edit ANNOT_DIR and REPO_DIR before submitting." >&2
-    exit 1
-fi
 
 # ---- Fixed paths ----
 WSI_DIR="/cluster/projects/kumargroup/ch-fibrosis"
