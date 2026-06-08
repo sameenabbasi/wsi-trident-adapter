@@ -22,13 +22,14 @@
 set -euo pipefail
 umask 002
 
+source ~/miniforge3/bin/activate
+
 # ==============================================================
 #   USER-DEFINED INPUTS  —  EDIT BEFORE SUBMITTING
 # ==============================================================
 
-# Python environment
-source ~/miniforge3/bin/activate
-conda activate methylcdm_h100
+# Python environment (virtualenv or conda — keep one, remove the other)
+conda activate methylcdm
 
 # Base directory containing one subfolder per cohort
 #   Expected layout:  WSI_BASE/<COHORT>/*.svs (flat — not nested in case dirs)
