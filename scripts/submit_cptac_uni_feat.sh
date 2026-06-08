@@ -26,9 +26,10 @@ umask 002
 #   USER-DEFINED INPUTS  —  EDIT BEFORE SUBMITTING
 # ==============================================================
 
-# Python environment (keep one method, remove the other)
+# Python environment
+cd ~
+source ~/miniforge3/bin/activate
 conda activate methylcdm_h100
-# source /path/to/.venv/bin/activate
 
 # Base directory containing one subfolder per cohort
 #   Expected layout:  WSI_BASE/<COHORT>/*.svs (flat — not nested in case dirs)
