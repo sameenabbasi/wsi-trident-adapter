@@ -27,7 +27,6 @@ umask 002
 # ==============================================================
 
 # Python environment
-cd ~
 source ~/miniforge3/bin/activate
 conda activate methylcdm_h100
 
