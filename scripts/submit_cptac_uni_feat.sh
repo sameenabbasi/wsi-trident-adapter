@@ -58,22 +58,16 @@ COHORT="${COHORTS[$SLURM_ARRAY_TASK_ID]}"
 WSI_DIR="${WSI_BASE}/${COHORT}"
 JOB_DIR="${OUT_BASE}/${COHORT}"
 
-# ---- Sanity check ----
-if ! command -v wsi-trident-adapter &> /dev/null; then
-    echo "[ERROR] wsi-trident-adapter not found — activate your environment first." >&2
-    exit 1
-fi
-
 if [[ ! -d "${WSI_DIR}" ]]; then
     echo "[ERROR] WSI directory not found: ${WSI_DIR}" >&2
     exit 1
 fi
 
 # ---- Asset paths (hpc-for-health profile) ----
-WSI_ASSETS_ROOT="$(wsi-trident-adapter profile root)"
-export TRIDENT_HOME="${WSI_ASSETS_ROOT}/weights/trident"
-export TORCH_HOME="${WSI_ASSETS_ROOT}/weights/torch"
-export HF_HOME="${WSI_ASSETS_ROOT}/weights/huggingface"
+ASSETS_ROOT="/cluster/projects/kumargroup/wsi-trident-adapter-assets"
+export TRIDENT_HOME="${ASSETS_ROOT}/weights/trident"
+export TORCH_HOME="${ASSETS_ROOT}/weights/torch"
+export HF_HOME="${ASSETS_ROOT}/weights/huggingface"
 
 # ---- Create output and log dirs ----
 mkdir -p "${JOB_DIR}"
@@ -121,7 +115,7 @@ echo "[INFO] Start        : $(date)"
 echo ""
 
 # ---- Run full pipeline (seg -> patch -> feat) ----
-wsi-trident-adapter run --task all --config "${CONFIG_PATH}"
+python -m trident_adapter.cli run --task all --config "${CONFIG_PATH}"
 
 echo ""
 echo "[INFO] Finished : $(date)"
