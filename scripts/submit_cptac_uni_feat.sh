@@ -29,7 +29,7 @@ source ~/miniforge3/bin/activate
 # ==============================================================
 
 # Python environment (virtualenv or conda — keep one, remove the other)
-conda activate methylcdm
+conda activate methylcdm_h100
 
 # Base directory containing one subfolder per cohort
 #   Expected layout:  WSI_BASE/<COHORT>/*.svs (flat — not nested in case dirs)
