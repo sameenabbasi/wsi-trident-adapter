@@ -115,7 +115,7 @@ echo "[INFO] Start        : $(date)"
 echo ""
 
 # ---- Run full pipeline (seg -> patch -> feat) ----
-python -m trident_adapter.cli.main run --task all --config "${CONFIG_PATH}"
+wsi-trident-adapter run --task all --config "${CONFIG_PATH}"
 
 echo ""
 echo "[INFO] Finished : $(date)"
