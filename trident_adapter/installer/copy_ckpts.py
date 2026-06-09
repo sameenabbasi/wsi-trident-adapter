@@ -7,12 +7,12 @@ from pathlib import Path
 import trident_adapter
 
 
-def _copy_manifest(src_json: Path, module_path: str) -> None:
-    spec = importlib.util.find_spec(module_path)
-    if spec is None or spec.origin is None:
-        raise RuntimeError(f"Cannot locate module '{module_path}'")
-    target_dir = Path(spec.origin).resolve().parent
-    shutil.copy2(src_json, target_dir / "local_ckpts.json")
+def _trident_root() -> Path:
+    # find_spec on the top-level package never imports it
+    spec = importlib.util.find_spec("trident")
+    if spec is None or not spec.submodule_search_locations:
+        raise RuntimeError("Cannot locate the 'trident' package")
+    return Path(next(iter(spec.submodule_search_locations))).resolve()
 
 
 def copy_ckpts(profile: str) -> None:
@@ -29,15 +29,24 @@ def copy_ckpts(profile: str) -> None:
             f" {ckpt_dir}"
         )
 
-    mappings: list[tuple[str, str]] = [
-        ("segmentation_ckpts.json", "trident.segmentation_models.load"),
-        ("patch_encoder_ckpts.json", "trident.patch_encoder_models.load"),
-        ("slide_encoder_ckpts.json", "trident.slide_encoder_models.load"),
+    trident = _trident_root()
+
+    # maps source JSON → directory inside trident where local_ckpts.json lives
+    mappings: list[tuple[str, Path]] = [
+        ("segmentation_ckpts.json", trident / "segmentation_models" / "load.py"),
+        ("patch_encoder_ckpts.json", trident / "patch_encoder_models" / "load.py"),
+        ("slide_encoder_ckpts.json", trident / "slide_encoder_models" / "load.py"),
     ]
 
-    for filename, module_path in mappings:
+    for filename, target_load_py in mappings:
         src_json = ckpt_dir / filename
         if not src_json.exists():
             continue
 
-        _copy_manifest(src_json, module_path)
+        if not target_load_py.parent.is_dir():
+            raise RuntimeError(
+                f"Expected trident subpackage directory not found:"
+                f" {target_load_py.parent}"
+            )
+
+        shutil.copy2(src_json, target_load_py.parent / "local_ckpts.json")
