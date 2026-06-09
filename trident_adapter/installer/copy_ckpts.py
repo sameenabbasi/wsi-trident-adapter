@@ -1,15 +1,18 @@
 from __future__ import annotations
 
+import importlib.util
 import shutil
 from pathlib import Path
 
 import trident_adapter
 
 
-def _copy_manifest(src_json: Path, target_module) -> None:
-    target_dir = Path(target_module.__file__).resolve().parent
-    target_json = target_dir / "local_ckpts.json"
-    shutil.copy2(src_json, target_json)
+def _copy_manifest(src_json: Path, module_path: str) -> None:
+    spec = importlib.util.find_spec(module_path)
+    if spec is None or spec.origin is None:
+        raise RuntimeError(f"Cannot locate module '{module_path}'")
+    target_dir = Path(spec.origin).resolve().parent
+    shutil.copy2(src_json, target_dir / "local_ckpts.json")
 
 
 def copy_ckpts(profile: str) -> None:
@@ -37,9 +40,4 @@ def copy_ckpts(profile: str) -> None:
         if not src_json.exists():
             continue
 
-        try:
-            module = __import__(module_path, fromlist=["load"])
-        except ImportError as exc:
-            raise RuntimeError(f"Unable to import '{module_path}': {exc}")
-
-        _copy_manifest(src_json, module)
+        _copy_manifest(src_json, module_path)
