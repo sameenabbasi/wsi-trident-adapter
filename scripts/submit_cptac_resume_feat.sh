@@ -8,12 +8,12 @@
 #SBATCH -J cptac-resume-feat
 #SBATCH -o /cluster/projects/kumargroup/CPTAC_data/trident_output/logs/slurm-%A_%a.out
 #SBATCH -e /cluster/projects/kumargroup/CPTAC_data/trident_output/logs/slurm-%A_%a.err
-#SBATCH --array=0-31
+#SBATCH --array=0-63
 #SBATCH --export=NONE
 
 # ==============================================================
-#   Resume UNI v2 feature extraction — 8 cohorts × 4 GPUs each
-#   Array index: cohort = task_id / 4,  chunk = task_id % 4
+#   Resume UNI v2 feature extraction — 8 cohorts × 8 GPUs each
+#   Array index: cohort = task_id / 8,  chunk = task_id % 8
 #
 #   Prerequisites:
 #     1. Cancel the old job:   scancel <JOBID>
@@ -29,7 +29,7 @@ conda activate methylcdm_h100
 
 WSI_BASE="/cluster/projects/kumargroup/CPTAC_data/Histology_by_CT"
 OUT_BASE="/cluster/projects/kumargroup/CPTAC_data/trident_output"
-N_CHUNKS=4
+N_CHUNKS=8
 
 COHORTS=(
     CPTAC-AML

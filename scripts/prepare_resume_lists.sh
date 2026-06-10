@@ -21,7 +21,7 @@ set -euo pipefail
 WSI_BASE="/cluster/projects/kumargroup/CPTAC_data/Histology_by_CT"
 OUT_BASE="/cluster/projects/kumargroup/CPTAC_data/trident_output"
 FEAT_SUBDIR="20x_256px_0px_overlap/features_uni_v2"
-N_CHUNKS=4
+N_CHUNKS=8
 
 COHORTS=(
     CPTAC-AML
