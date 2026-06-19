@@ -22,26 +22,41 @@ LIST_DIR="${OUT_DIR}/process_lists"
 FEAT_DIR="${OUT_DIR}/${FEAT_SUBDIR}"
 
 
-# Build a set of WSI stems that have ANY lock file in the feat dir.
-# Trident sometimes appends a series suffix (e.g. NLSI0000251-001.h5.lock)
-# so we strip trailing -NNN before matching back to the WSI filename.
-declare -A locked_stems
+# Step 1: collect stems that have a .lock file anywhere under OUT_DIR.
+# Search recursively so path mismatches don't silently drop results.
+# Strip trailing -NNN series suffixes (e.g. NLSI0000251-001 -> NLSI0000251).
+declare -A needs_processing
+
+n_locks=0
 while IFS= read -r lockfile; do
     stem=$(basename "${lockfile}" .h5.lock)
-    base_stem="${stem%-[0-9]*}"   # strip trailing -001 / -002 etc.
-    locked_stems["${base_stem}"]=1
-done < <(find "${FEAT_DIR}" -maxdepth 1 -name "*.h5.lock" 2>/dev/null)
+    base_stem="${stem%-[0-9]*}"
+    needs_processing["${base_stem}"]=1
+    (( n_locks++ )) || true
+done < <(find "${OUT_DIR}" -name "*.h5.lock")
+echo "[INFO] Lock files found: ${n_locks}"
 
+# Step 2: add slides with no h5 output at all (glob handles -001 variants).
+n_missing=0
+for wsi in "${WSI_DIR}"/*.svs "${WSI_DIR}"/*.tif; do
+    [[ -e "${wsi}" ]] || continue
+    stem=$(basename "${wsi%.*}")
+    if ! compgen -G "${FEAT_DIR}/${stem}*.h5" > /dev/null 2>&1; then
+        needs_processing["${stem}"]=1
+        (( n_missing++ )) || true
+    fi
+done
+echo "[INFO] Slides with no h5 output: ${n_missing}"
+
+# Step 3: resolve stems back to WSI filenames.
 mapfile -t remaining < <(
-    for wsi in "${WSI_DIR}"/*.svs "${WSI_DIR}"/*.tif; do
-        [[ -e "${wsi}" ]] || continue
-        base=$(basename "${wsi}")
-        stem="${base%.*}"
-        h5="${FEAT_DIR}/${stem}.h5"
-        # Include if: no exact-stem h5, OR lock exists (direct or series-suffixed)
-        if [[ ! -f "${h5}" ]] || [[ -n "${locked_stems[${stem}]+x}" ]]; then
-            echo "${base}"
-        fi
+    for stem in "${!needs_processing[@]}"; do
+        for ext in svs tif; do
+            if [[ -f "${WSI_DIR}/${stem}.${ext}" ]]; then
+                echo "${stem}.${ext}"
+                break
+            fi
+        done
     done | sort
 )
 
