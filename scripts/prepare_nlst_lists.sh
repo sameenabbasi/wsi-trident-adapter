@@ -22,14 +22,24 @@ LIST_DIR="${OUT_DIR}/process_lists"
 FEAT_DIR="${OUT_DIR}/${FEAT_SUBDIR}"
 
 
+# Build a set of WSI stems that have ANY lock file in the feat dir.
+# Trident sometimes appends a series suffix (e.g. NLSI0000251-001.h5.lock)
+# so we strip trailing -NNN before matching back to the WSI filename.
+declare -A locked_stems
+while IFS= read -r lockfile; do
+    stem=$(basename "${lockfile}" .h5.lock)
+    base_stem="${stem%-[0-9]*}"   # strip trailing -001 / -002 etc.
+    locked_stems["${base_stem}"]=1
+done < <(find "${FEAT_DIR}" -maxdepth 1 -name "*.h5.lock" 2>/dev/null)
+
 mapfile -t remaining < <(
-    for wsi in "${WSI_DIR}"/*.svs; do
+    for wsi in "${WSI_DIR}"/*.svs "${WSI_DIR}"/*.tif; do
         [[ -e "${wsi}" ]] || continue
         base=$(basename "${wsi}")
         stem="${base%.*}"
         h5="${FEAT_DIR}/${stem}.h5"
-        lock="${h5}.lock"
-        if [[ ! -f "${h5}" ]] || [[ -f "${lock}" ]]; then
+        # Include if: no exact-stem h5, OR lock exists (direct or series-suffixed)
+        if [[ ! -f "${h5}" ]] || [[ -n "${locked_stems[${stem}]+x}" ]]; then
             echo "${base}"
         fi
     done | sort
