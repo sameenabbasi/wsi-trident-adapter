@@ -58,7 +58,6 @@ export TRIDENT_HOME="${ASSETS_ROOT}/weights/trident"
 export TORCH_HOME="${ASSETS_ROOT}/weights/torch"
 export HF_HOME="${ASSETS_ROOT}/weights/huggingface"
 
-mkdir -p "${OUT_DIR}" "${OUT_DIR}/logs"
 
 # ---- Config ----
 CONFIG_PATH="${OUT_DIR}/config_chunk${SLURM_ARRAY_TASK_ID}.yaml"
