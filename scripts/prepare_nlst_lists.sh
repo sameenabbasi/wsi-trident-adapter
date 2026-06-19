@@ -21,7 +21,6 @@ FEAT_SUBDIR="20x_256px_0px_overlap/features_uni_v2"
 LIST_DIR="${OUT_DIR}/process_lists"
 FEAT_DIR="${OUT_DIR}/${FEAT_SUBDIR}"
 
-mkdir -p "${LIST_DIR}"
 
 mapfile -t remaining < <(
     for wsi in "${WSI_DIR}"/*.svs; do
