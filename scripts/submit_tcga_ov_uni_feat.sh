@@ -16,8 +16,8 @@
 #   8 parallel GPU workers, each processing one chunk of slides
 #
 #   Prerequisites:
-#     1. Copy slides_for_feature_extraction.txt to:
-#        /cluster/projects/kumargroup/sean/data/TCGA_features/slides_for_feature_extraction.txt
+#     1. Slide list is at:
+#        /cluster/projects/kumargroup/sean/data/new_proteomics/TCGA-OV/slides_for_feature_extraction.txt
 #     2. Run:    bash prepare_tcga_ov_lists.sh
 #     3. Submit: sbatch submit_tcga_ov_uni_feat.sh
 # ==============================================================
