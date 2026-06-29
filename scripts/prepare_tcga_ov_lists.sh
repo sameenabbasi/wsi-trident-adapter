@@ -15,7 +15,7 @@ set -euo pipefail
 SLIDE_LIST="/cluster/projects/kumargroup/sean/data/new_proteomics/TCGA-OV/slides_for_feature_extraction.txt"
 WSI_DIR="/cluster/projects/kumargroup/hayden/data/TCGA/TCGA-OV/slides/raw"
 OUT_DIR="/cluster/projects/kumargroup/sean/data/TCGA_features/new_TCGA_OV"
-N_GPUS=8
+N_GPUS=15
 # --------------------
 
 FEAT_SUBDIR="20x_256px_0px_overlap/features_uni_v2"

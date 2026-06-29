@@ -8,7 +8,7 @@
 #SBATCH -J tcga-ov-uni-feat
 #SBATCH -o /cluster/projects/kumargroup/sean/data/TCGA_features/new_TCGA_OV/logs/slurm-%A_%a.out
 #SBATCH -e /cluster/projects/kumargroup/sean/data/TCGA_features/new_TCGA_OV/logs/slurm-%A_%a.err
-#SBATCH --array=0-7
+#SBATCH --array=0-14
 #SBATCH --export=NONE
 
 # ==============================================================
