@@ -6,8 +6,8 @@
 #SBATCH --gres gpu:1
 #SBATCH -t 2-00:00
 #SBATCH -J pdac-uni-feat
-#SBATCH -o /cluster/projects/kumargroup/hayden/processed/PDAC/logs/slurm-%A_%a.out
-#SBATCH -e /cluster/projects/kumargroup/hayden/processed/PDAC/logs/slurm-%A_%a.err
+#SBATCH -o /cluster/projects/kumargroup/sean/data/PDAC/logs/slurm-%A_%a.out
+#SBATCH -e /cluster/projects/kumargroup/sean/data/PDAC/logs/slurm-%A_%a.err
 #SBATCH --array=0-15
 #SBATCH --export=NONE
 
@@ -26,7 +26,7 @@ umask 002
 source ~/miniforge3/bin/activate
 conda activate methylcdm_h100
 
-OUT_BASE="/cluster/projects/kumargroup/hayden/processed/PDAC"
+OUT_BASE="/cluster/projects/kumargroup/sean/data/PDAC"
 N_GPUS=8
 
 DATASET_NAMES=(

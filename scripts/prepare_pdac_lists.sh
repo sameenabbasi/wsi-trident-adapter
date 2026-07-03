@@ -15,7 +15,7 @@
 
 set -euo pipefail
 
-OUT_BASE="/cluster/projects/kumargroup/hayden/processed/PDAC"
+OUT_BASE="/cluster/projects/kumargroup/sean/data/PDAC"
 N_GPUS=8
 FEAT_SUBDIR="20x_256px_0px_overlap/features_uni_v2"
 
@@ -42,6 +42,8 @@ for idx in "${!DATASET_NAMES[@]}"; do
         echo "[WARN]  ${NAME}: WSI dir not found, skipping"
         continue
     fi
+
+    mkdir -p "${LIST_DIR}" "${OUT_BASE}/logs"
 
     echo "[INFO]  Processing dataset: ${NAME}"
     echo "[INFO]  WSI dir: ${WSI_DIR}"
