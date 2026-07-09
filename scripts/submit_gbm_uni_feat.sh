@@ -47,7 +47,7 @@ OUT_DIR="/cluster/projects/kumargroup/sean/data/GBM"
 #     python scripts/probe_gbm_mpp.py "${WSI_DIR}"
 # Akoya CODEX @ 20x/0.75 is typically ~0.3774 µm/px (Keyence-based CODEX) or
 # ~0.5 µm/px (PhenoCycler-Fusion). Set MPP to whatever the probe reports.
-MPP="0.3774"
+MPP="0.5"
 
 # ==============================================================
 #   END OF USER INPUTS
@@ -73,9 +73,9 @@ mkdir -p "${OUT_DIR}/logs"
 # This includes the per-case .ome.tif slides and the composite .qptiff
 # scans, and excludes CODEX__* / WSI_CODEX__* by construction.
 PROCESS_LIST="${OUT_DIR}/process_list.csv"
-printf 'wsi\n' > "${PROCESS_LIST}"
+printf 'wsi,mpp\n' > "${PROCESS_LIST}"
 while IFS= read -r wsi; do
-    printf '%s\n' "$(basename "${wsi}")" >> "${PROCESS_LIST}"
+    printf '%s,%s\n' "$(basename "${wsi}")" "${MPP}" >> "${PROCESS_LIST}"
 done < <(
     find "${WSI_DIR}" -maxdepth 1 -type f \
         \( -name 'HE__*.tif' -o -name 'HE__*.tiff' -o -name 'WSI_HE__*.qptiff' \) \
