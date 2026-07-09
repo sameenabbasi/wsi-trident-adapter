@@ -6,8 +6,9 @@
 #SBATCH --gres gpu:1
 #SBATCH -t 1-00:00
 #SBATCH -J codex-tma-uni-feat
-#SBATCH -o /cluster/projects/kumargroup/sean/data/CODEX_TMA/logs/slurm-%A.out
-#SBATCH -e /cluster/projects/kumargroup/sean/data/CODEX_TMA/logs/slurm-%A.err
+#SBATCH -o /cluster/projects/kumargroup/sean/data/CODEX_TMA/logs/slurm-%A_%a.out
+#SBATCH -e /cluster/projects/kumargroup/sean/data/CODEX_TMA/logs/slurm-%A_%a.err
+#SBATCH --array=0-3
 #SBATCH --export=NONE
 
 # ==============================================================
@@ -19,9 +20,10 @@
 #   treated as its own slide; the pipeline segments -> patches
 #   (256 px @ 20x) -> extracts UNI v2 features per patch.
 #
-#   Each TMA folder is processed independently into its own output
-#   tree, because the slide lister does not recurse into subfolders
-#   and reg### numbers may repeat across folders.
+#   Runs as a SLURM job array: one array task per TMA folder, each
+#   on its own GPU into its own output tree. The slide lister does
+#   not recurse into subfolders and reg### numbers may repeat across
+#   folders, so folders must be processed independently.
 #
 #   Submit:  sbatch scripts/submit_codex_tma_uni_feat.sh
 #   Monitor: squeue -u $USER
@@ -40,7 +42,7 @@ conda activate methylcdm_h100
 # Root directory containing the four TMA folders (flat .tif cores each)
 SRC_ROOT="/cluster/projects/kumargroup/codex/processed_hande"
 
-# TMA folders to process (each becomes its own output tree)
+# TMA folders to process (one array task each; keep --array in sync)
 TMAS=(
     CRC_TMA_A
     CRC_TMA_B
@@ -56,6 +58,9 @@ OUT_ROOT="/cluster/projects/kumargroup/sean/data/CODEX_TMA"
 # mpp is supplied explicitly via the process-list 'mpp' column below.
 MPP="0.37744"
 
+# Minimum tissue proportion per patch (patches below this are dropped)
+MIN_TISSUE_PROPORTION="0.5"
+
 # ==============================================================
 #   END OF USER INPUTS
 # ==============================================================
@@ -65,6 +70,20 @@ if [[ ! -d "${SRC_ROOT}" ]]; then
     exit 1
 fi
 
+# ---- Select this array task's TMA folder ----
+if [[ -z "${SLURM_ARRAY_TASK_ID:-}" ]]; then
+    echo "[ERROR] SLURM_ARRAY_TASK_ID unset; submit with 'sbatch' (job array)." >&2
+    exit 1
+fi
+if (( SLURM_ARRAY_TASK_ID >= ${#TMAS[@]} )); then
+    echo "[ERROR] Array index ${SLURM_ARRAY_TASK_ID} out of range for ${#TMAS[@]} TMAs." >&2
+    exit 1
+fi
+tma="${TMAS[${SLURM_ARRAY_TASK_ID}]}"
+
+WSI_DIR="${SRC_ROOT}/${tma}"
+OUT_DIR="${OUT_ROOT}/${tma}"
+
 # ---- Asset paths (hpc-for-health profile) ----
 ASSETS_ROOT="/cluster/projects/kumargroup/wsi-trident-adapter-assets"
 export TRIDENT_HOME="${ASSETS_ROOT}/weights/trident"
@@ -73,49 +92,42 @@ export HF_HOME="${ASSETS_ROOT}/weights/huggingface"
 
 mkdir -p "${OUT_ROOT}/logs"
 
-echo "[INFO] Job       : ${SLURM_JOB_ID:-<interactive>}"
-echo "[INFO] Src root  : ${SRC_ROOT}"
-echo "[INFO] Out root  : ${OUT_ROOT}"
+echo "[INFO] Job       : ${SLURM_ARRAY_JOB_ID:-?}_${SLURM_ARRAY_TASK_ID}"
+echo "[INFO] TMA       : ${tma}"
+echo "[INFO] WSI dir   : ${WSI_DIR}"
+echo "[INFO] Out dir   : ${OUT_DIR}"
 echo "[INFO] MPP       : ${MPP}"
 echo "[INFO] Node      : $(hostname)"
 echo "[INFO] Start     : $(date)"
 echo ""
 
-# ---- Process each TMA folder independently ----
-for tma in "${TMAS[@]}"; do
-    WSI_DIR="${SRC_ROOT}/${tma}"
-    OUT_DIR="${OUT_ROOT}/${tma}"
+if [[ ! -d "${WSI_DIR}" ]]; then
+    echo "[ERROR] Folder not found: ${WSI_DIR}" >&2
+    exit 1
+fi
 
-    echo "=============================================================="
-    echo "[INFO] TMA       : ${tma}"
+mkdir -p "${OUT_DIR}/logs"
 
-    if [[ ! -d "${WSI_DIR}" ]]; then
-        echo "[WARN] Folder not found, skipping: ${WSI_DIR}" >&2
-        continue
-    fi
+# ---- Write process list (wsi + mpp) ----
+PROCESS_LIST="${OUT_DIR}/process_list.csv"
+printf 'wsi,mpp\n' > "${PROCESS_LIST}"
+while IFS= read -r wsi; do
+    printf '%s,%s\n' "$(basename "${wsi}")" "${MPP}" >> "${PROCESS_LIST}"
+done < <(
+    find "${WSI_DIR}" -maxdepth 1 -type f \
+        \( -name '*.tif' -o -name '*.tiff' \) \
+        -not -name '._*' 2>/dev/null | sort
+)
 
-    mkdir -p "${OUT_DIR}/logs"
+slide_count=$(( $(wc -l < "${PROCESS_LIST}") - 1 ))
+if [[ ${slide_count} -le 0 ]]; then
+    echo "[ERROR] No .tif cores found in ${WSI_DIR}" >&2
+    exit 1
+fi
 
-    # ---- Write process list (wsi + mpp) ----
-    PROCESS_LIST="${OUT_DIR}/process_list.csv"
-    printf 'wsi,mpp\n' > "${PROCESS_LIST}"
-    while IFS= read -r wsi; do
-        printf '%s,%s\n' "$(basename "${wsi}")" "${MPP}" >> "${PROCESS_LIST}"
-    done < <(
-        find "${WSI_DIR}" -maxdepth 1 -type f \
-            \( -name '*.tif' -o -name '*.tiff' \) \
-            -not -name '._*' 2>/dev/null | sort
-    )
-
-    slide_count=$(( $(wc -l < "${PROCESS_LIST}") - 1 ))
-    if [[ ${slide_count} -le 0 ]]; then
-        echo "[WARN] No .tif cores found in ${WSI_DIR}, skipping." >&2
-        continue
-    fi
-
-    # ---- Write config ----
-    CONFIG_PATH="${OUT_DIR}/config.yaml"
-    cat > "${CONFIG_PATH}" << YAML
+# ---- Write config ----
+CONFIG_PATH="${OUT_DIR}/config.yaml"
+cat > "${CONFIG_PATH}" << YAML
 io:
     wsi_dir: "${WSI_DIR}"
     job_dir: ${OUT_DIR}
@@ -134,7 +146,7 @@ patching:
     magnification: 20
     patch_size: 256
     overlap: 0
-    min_tissue_proportion: 0.0
+    min_tissue_proportion: ${MIN_TISSUE_PROPORTION}
 
 features:
     encoder: uni_v2
@@ -144,18 +156,12 @@ system:
     device: cuda
 YAML
 
-    echo "[INFO] WSI dir   : ${WSI_DIR}"
-    echo "[INFO] Out dir   : ${OUT_DIR}"
-    echo "[INFO] Cores     : ${slide_count}"
-    echo "[INFO] Config    : ${CONFIG_PATH}"
-    echo ""
+echo "[INFO] Cores     : ${slide_count}"
+echo "[INFO] Config    : ${CONFIG_PATH}"
+echo ""
 
-    # ---- Run full pipeline (seg -> patch -> feat) ----
-    wsi-trident-adapter run --task all --config "${CONFIG_PATH}"
+# ---- Run full pipeline (seg -> patch -> feat) ----
+wsi-trident-adapter run --task all --config "${CONFIG_PATH}"
 
-    echo "[INFO] Done ${tma} : $(date)"
-    echo ""
-done
-
-echo "=============================================================="
-echo "[INFO] All TMAs finished : $(date)"
+echo ""
+echo "[INFO] Done ${tma} : $(date)"

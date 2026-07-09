@@ -47,7 +47,7 @@ OUT_DIR="/cluster/projects/kumargroup/sean/data/GBM"
 #     python scripts/probe_gbm_mpp.py "${WSI_DIR}"
 # Akoya CODEX @ 20x/0.75 is typically ~0.3774 µm/px (Keyence-based CODEX) or
 # ~0.5 µm/px (PhenoCycler-Fusion). Set MPP to whatever the probe reports.
-MPP="0.5"
+MPP="0.3774"
 
 # ==============================================================
 #   END OF USER INPUTS
