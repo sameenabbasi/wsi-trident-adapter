@@ -39,6 +39,16 @@ WSI_DIR="/cluster/projects/kumargroup/codex/gbm/raw"
 # Where the TRIDENT output tree (segmentation/patches/features) is written
 OUT_DIR="/cluster/projects/kumargroup/sean/data/GBM"
 
+# Microns-per-pixel for the slides. These OME-TIFF/qptiff files are read by
+# TRIDENT's generic ImageWSI loader, which does NOT parse embedded pixel size,
+# so mpp must be supplied explicitly (written into the process-list CSV below).
+#
+# VERIFY THIS against the actual files before running:
+#     python scripts/probe_gbm_mpp.py "${WSI_DIR}"
+# Akoya CODEX @ 20x/0.75 is typically ~0.3774 µm/px (Keyence-based CODEX) or
+# ~0.5 µm/px (PhenoCycler-Fusion). Set MPP to whatever the probe reports.
+MPP="0.5"
+
 # ==============================================================
 #   END OF USER INPUTS
 # ==============================================================
