@@ -66,9 +66,26 @@ def existing_tiles(raw_dir: Path) -> list[tuple[int, Path]]:
     return tiles
 
 
+def _import_openslide():
+    """Import openslide with an actionable message if the native lib is missing."""
+    try:
+        import openslide
+    except (ImportError, ModuleNotFoundError) as exc:
+        sys.exit(
+            "[error] could not load OpenSlide: "
+            f"{exc}\n"
+            "        Run this in the same conda env used for extraction, e.g.\n"
+            "            source ~/miniforge3/bin/activate && conda activate methylcdm\n"
+            "        (that env must match the one that produced the patches, since\n"
+            "        the tiling grid depends on the OpenSlide level metadata).\n"
+            "        If it is missing there too: pip install openslide-bin"
+        )
+    return openslide
+
+
 def slide_grid(slide_path: Path, args: argparse.Namespace) -> tuple[list, dict]:
     """Rebuild the extraction grid for one slide.  Reads metadata only."""
-    import openslide
+    openslide = _import_openslide()
 
     slide = openslide.OpenSlide(str(slide_path))
     W, H = slide.dimensions
@@ -178,6 +195,8 @@ def main() -> None:
     p.add_argument("--dry_run", action="store_true",
                    help="Report what would happen without touching any file.")
     args = p.parse_args()
+
+    _import_openslide()
 
     patches_root = args.out_dir / "patches"
     masks_root = args.out_dir / "masks"
