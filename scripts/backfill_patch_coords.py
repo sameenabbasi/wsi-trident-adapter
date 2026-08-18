@@ -7,7 +7,8 @@ assigns tile indices by position in that grid, so for a run that did NOT use
 --filter_background the index alone pins the coordinate: tile_NNNN is
 coords[NNNN].  This script rebuilds the grid from the slide metadata (no pixel
 reads) and writes the coords.csv / coords_meta.json that the extractor now
-emits, optionally renaming the files to embed x/y.
+emits.  Patch files are left untouched unless --rename is passed; the CSV maps
+the existing tile numbers to their coordinates either way.
 
 The tiling parameters must match the original extraction run.  The defaults
 here match scripts/extract_patches_masks.sh (20x, 256 px, no overlap).
@@ -152,31 +153,39 @@ def process_slide_dir(
     meta["tiles_saved"] = len(saved_tiles)
     meta["tiles_skipped"] = 0
 
+    stems = [raw_path.stem[: -len("_raw")] for _, raw_path in tiles]
+
     renamed = 0
     if args.rename:
-        for (idx, x, y), (_, raw_path) in zip(saved_tiles, tiles):
+        for i, ((idx, x, y), old_stem) in enumerate(zip(saved_tiles, stems)):
             new_name = tile_name(idx, x, y)
-            old_stem = raw_path.stem[: -len("_raw")]
             if old_stem == new_name:
                 continue
             renamed += 1
             if args.dry_run:
                 continue
-            raw_path.rename(raw_dir / f"{new_name}_raw.png")
+            (raw_dir / f"{old_stem}_raw.png").rename(raw_dir / f"{new_name}_raw.png")
             old_mask = mask_dir / f"{old_stem}_mask.png"
             if old_mask.exists():
                 old_mask.rename(mask_dir / f"{new_name}_mask.png")
             else:
                 print(f"    [warn] no mask for {old_stem}")
+            stems[i] = new_name
+
+    # The CSV always names the files as they actually sit on disk, so it stays
+    # correct whether or not --rename was used.
+    missing = [s for s in stems if not (mask_dir / f"{s}_mask.png").exists()]
+    if missing:
+        print(f"    [warn] {len(missing)} patches have no matching mask")
 
     if args.dry_run:
         print(f"    [dry-run] would write {COORD_CSV_NAME} for {len(saved_tiles)} tiles"
-              + (f", rename {renamed} files" if args.rename else ""))
+              + (f", rename {renamed} files" if args.rename else " (no renaming)"))
         return "ok"
 
-    write_coord_files(raw_dir, saved_tiles, meta)
+    write_coord_files(raw_dir, saved_tiles, meta, stems=stems)
     print(f"    wrote coords for {len(saved_tiles)} tiles"
-          + (f", renamed {renamed} files" if args.rename else ""))
+          + (f", renamed {renamed} files" if args.rename else " (files untouched)"))
     return "ok"
 
 
@@ -191,7 +200,9 @@ def main() -> None:
     p.add_argument("--patch_size", type=int, default=256)
     p.add_argument("--overlap", type=int, default=0)
     p.add_argument("--rename", action="store_true",
-                   help="Also rename tiles to tile_NNNN_xX_yY_{raw,mask}.png.")
+                   help="Also rename tiles to tile_NNNN_xX_yY_{raw,mask}.png. "
+                        "Off by default: patch files are left untouched and only "
+                        "coords.csv / coords_meta.json are written.")
     p.add_argument("--dry_run", action="store_true",
                    help="Report what would happen without touching any file.")
     args = p.parse_args()

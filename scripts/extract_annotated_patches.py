@@ -155,18 +155,26 @@ def write_coord_files(
     raw_dir: Path,
     tiles: list[tuple[int, int, int]],
     meta: dict,
+    stems: list[str] | None = None,
 ) -> None:
     """Write coords.csv + coords_meta.json describing the saved tiles.
 
     `tiles` is a list of (tile_idx, x, y) in saved order.  (x, y) is the
     top-left corner of the patch in level-0 pixel space; multiply the patch
     size by `downsample` from the metadata to get its level-0 extent.
+
+    `stems` gives the on-disk tile stem for each entry, for callers whose
+    files are not named by `tile_name` (e.g. coordinates backfilled onto an
+    existing extraction without renaming).  Defaults to `tile_name`.
     """
+    if stems is not None and len(stems) != len(tiles):
+        raise ValueError("stems and tiles must be the same length")
+
     with open(raw_dir / COORD_CSV_NAME, "w", newline="") as fh:
         writer = csv.writer(fh)
         writer.writerow(COORD_CSV_FIELDS)
-        for tile_idx, x, y in tiles:
-            name = tile_name(tile_idx, x, y)
+        for i, (tile_idx, x, y) in enumerate(tiles):
+            name = stems[i] if stems is not None else tile_name(tile_idx, x, y)
             writer.writerow([tile_idx, x, y, f"{name}_raw.png", f"{name}_mask.png"])
 
     with open(raw_dir / COORD_META_NAME, "w") as fh:
