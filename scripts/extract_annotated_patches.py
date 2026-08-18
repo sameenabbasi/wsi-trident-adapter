@@ -8,9 +8,9 @@ For every tile extracted from a slide the script writes two files:
   masks/<slide>/tile_NNNN_x{X}_y{Y}_mask.png    — binary mask (0 = bg, 1 = vessel)
 
 X and Y are the top-left corner of the patch in level-0 pixel space.  Each
-slide also gets patches/<slide>/coords.csv (tile_id, x, y, filenames) and
-coords_meta.json (slide dimensions, patch level, downsample, magnification),
-which together map every patch back onto the slide.
+slide also gets coords/<slide>.csv (tile_id, x, y, filenames) and
+coords/<slide>_meta.json (slide dimensions, patch level, downsample,
+magnification), which together map every patch back onto the slide.
 
 The mask is produced by rasterising the GeoJSON polygons (filled) that overlap
 each patch.  Polygon outlines without a fill are treated as filled regions.
@@ -133,8 +133,7 @@ def iter_tile_coords(
 
 TILE_RE = re.compile(r"^tile_(\d+)_x(\d+)_y(\d+)$")
 
-COORD_CSV_NAME = "coords.csv"
-COORD_META_NAME = "coords_meta.json"
+COORD_DIR_NAME = "coords"
 COORD_CSV_FIELDS = ["tile_id", "x", "y", "raw_file", "mask_file"]
 
 
@@ -152,12 +151,13 @@ def parse_tile_name(stem: str) -> tuple[int, int, int] | None:
 
 
 def write_coord_files(
-    raw_dir: Path,
+    coord_dir: Path,
+    slide_name: str,
     tiles: list[tuple[int, int, int]],
     meta: dict,
     stems: list[str] | None = None,
 ) -> None:
-    """Write coords.csv + coords_meta.json describing the saved tiles.
+    """Write <slide>.csv + <slide>_meta.json into `coord_dir`.
 
     `tiles` is a list of (tile_idx, x, y) in saved order.  (x, y) is the
     top-left corner of the patch in level-0 pixel space; multiply the patch
@@ -170,14 +170,16 @@ def write_coord_files(
     if stems is not None and len(stems) != len(tiles):
         raise ValueError("stems and tiles must be the same length")
 
-    with open(raw_dir / COORD_CSV_NAME, "w", newline="") as fh:
+    coord_dir.mkdir(parents=True, exist_ok=True)
+
+    with open(coord_dir / f"{slide_name}.csv", "w", newline="") as fh:
         writer = csv.writer(fh)
         writer.writerow(COORD_CSV_FIELDS)
         for i, (tile_idx, x, y) in enumerate(tiles):
             name = stems[i] if stems is not None else tile_name(tile_idx, x, y)
             writer.writerow([tile_idx, x, y, f"{name}_raw.png", f"{name}_mask.png"])
 
-    with open(raw_dir / COORD_META_NAME, "w") as fh:
+    with open(coord_dir / f"{slide_name}_meta.json", "w") as fh:
         json.dump(meta, fh, indent=2)
         fh.write("\n")
 
@@ -368,7 +370,8 @@ def process_slide(
         saved_tiles = _renumber_tiles(raw_dir, mask_dir, saved_tiles)
 
     write_coord_files(
-        raw_dir,
+        out_dir / COORD_DIR_NAME,
+        slide_name,
         saved_tiles,
         {
             "slide": slide_name,

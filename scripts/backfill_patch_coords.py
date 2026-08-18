@@ -7,8 +7,9 @@ assigns tile indices by position in that grid, so for a run that did NOT use
 --filter_background the index alone pins the coordinate: tile_NNNN is
 coords[NNNN].  This script rebuilds the grid from the slide metadata (no pixel
 reads) and writes the coords.csv / coords_meta.json that the extractor now
-emits.  Patch files are left untouched unless --rename is passed; the CSV maps
-the existing tile numbers to their coordinates either way.
+emits into <out_dir>/coords/.  Patch files are left untouched unless --rename
+is passed; the CSV maps the existing tile numbers to their coordinates either
+way.
 
 The tiling parameters must match the original extraction run.  The defaults
 here match scripts/extract_patches_masks.sh (20x, 256 px, no overlap).
@@ -35,7 +36,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from extract_annotated_patches import (  # noqa: E402
-    COORD_CSV_NAME,
+    COORD_DIR_NAME,
     iter_tile_coords,
     parse_tile_name,
     tile_name,
@@ -73,13 +74,13 @@ def _import_openslide():
         import openslide
     except (ImportError, ModuleNotFoundError) as exc:
         sys.exit(
-            "[error] could not load OpenSlide: "
-            f"{exc}\n"
-            "        Run this in the same conda env used for extraction, e.g.\n"
-            "            source ~/miniforge3/bin/activate && conda activate methylcdm\n"
-            "        (that env must match the one that produced the patches, since\n"
-            "        the tiling grid depends on the OpenSlide level metadata).\n"
-            "        If it is missing there too: pip install openslide-bin"
+            f"[error] could not load OpenSlide: {exc}\n"
+            "        Run this in the same conda env used for extraction: the grid\n"
+            "        depends on the OpenSlide level metadata, so it must match the\n"
+            "        env that produced the patches.\n"
+            "            source ~/miniforge3/bin/activate\n"
+            "            conda activate <env>      # `conda info --envs` lists them\n"
+            "        If OpenSlide is missing there too: pip install openslide-bin"
         )
     return openslide
 
@@ -129,6 +130,7 @@ def process_slide_dir(
     raw_dir: Path,
     mask_dir: Path,
     slide_path: Path,
+    coord_dir: Path,
     args: argparse.Namespace,
 ) -> str:
     tiles = existing_tiles(raw_dir)
@@ -179,11 +181,12 @@ def process_slide_dir(
         print(f"    [warn] {len(missing)} patches have no matching mask")
 
     if args.dry_run:
-        print(f"    [dry-run] would write {COORD_CSV_NAME} for {len(saved_tiles)} tiles"
+        print(f"    [dry-run] would write {coord_dir}/{raw_dir.name}.csv "
+              f"for {len(saved_tiles)} tiles"
               + (f", rename {renamed} files" if args.rename else " (no renaming)"))
         return "ok"
 
-    write_coord_files(raw_dir, saved_tiles, meta, stems=stems)
+    write_coord_files(coord_dir, raw_dir.name, saved_tiles, meta, stems=stems)
     print(f"    wrote coords for {len(saved_tiles)} tiles"
           + (f", renamed {renamed} files" if args.rename else " (files untouched)"))
     return "ok"
@@ -211,6 +214,7 @@ def main() -> None:
 
     patches_root = args.out_dir / "patches"
     masks_root = args.out_dir / "masks"
+    coord_dir = args.out_dir / COORD_DIR_NAME
     if not patches_root.is_dir():
         sys.exit(f"[error] patches directory not found: {patches_root}")
 
@@ -229,7 +233,11 @@ def main() -> None:
             print(f"    [SKIP] no matching slide in {args.wsi_dir}")
             counts["no_slide"] += 1
             continue
-        counts[process_slide_dir(raw_dir, masks_root / slide_name, slide_path, args)] += 1
+        counts[
+            process_slide_dir(
+                raw_dir, masks_root / slide_name, slide_path, coord_dir, args
+            )
+        ] += 1
 
     print("\n" + "=" * 60)
     print(f"Done.  ok={counts['ok']}  mismatch={counts['mismatch']}  "
