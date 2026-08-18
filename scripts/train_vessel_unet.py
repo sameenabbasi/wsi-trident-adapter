@@ -253,7 +253,7 @@ def discover_tiles(data_dir: Path) -> list[tuple[Path, Path, str]]:
         slide_name = slide_dir.name
         mask_dir = masks_root / slide_name
         for raw_path in sorted(slide_dir.glob("*_raw.png")):
-            stem = raw_path.stem[: -len("_raw")]  # tile_NNNN
+            stem = raw_path.stem[: -len("_raw")]  # tile_NNNN_xX_yY
             mask_path = mask_dir / f"{stem}_mask.png"
             if mask_path.exists():
                 pairs.append((raw_path, mask_path, slide_name))

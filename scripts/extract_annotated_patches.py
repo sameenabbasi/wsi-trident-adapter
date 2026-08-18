@@ -4,8 +4,13 @@ Tile WSIs and produce paired raw-patch / binary-mask images from GeoJSON
 blood-vessel annotations.
 
 For every tile extracted from a slide the script writes two files:
-  patches/<slide>/tile_NNNN_raw.png   — RGB patch at the target magnification
-  masks/<slide>/tile_NNNN_mask.png    — binary mask (0 = background, 1 = vessel)
+  patches/<slide>/tile_NNNN_x{X}_y{Y}_raw.png   — RGB patch at target magnification
+  masks/<slide>/tile_NNNN_x{X}_y{Y}_mask.png    — binary mask (0 = bg, 1 = vessel)
+
+X and Y are the top-left corner of the patch in level-0 pixel space.  Each
+slide also gets patches/<slide>/coords.csv (tile_id, x, y, filenames) and
+coords_meta.json (slide dimensions, patch level, downsample, magnification),
+which together map every patch back onto the slide.
 
 The mask is produced by rasterising the GeoJSON polygons (filled) that overlap
 each patch.  Polygon outlines without a fill are treated as filled regions.
@@ -32,7 +37,9 @@ Matching is by stem name: slide_A.svs ↔ slide_A.geojson
 from __future__ import annotations
 
 import argparse
+import csv
 import json
+import re
 import multiprocessing as mp
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -124,6 +131,49 @@ def iter_tile_coords(
     return unique
 
 
+TILE_RE = re.compile(r"^tile_(\d+)_x(\d+)_y(\d+)$")
+
+COORD_CSV_NAME = "coords.csv"
+COORD_META_NAME = "coords_meta.json"
+COORD_CSV_FIELDS = ["tile_id", "x", "y", "raw_file", "mask_file"]
+
+
+def tile_name(tile_idx: int, x: int, y: int) -> str:
+    """Canonical tile stem.  Coordinates are level-0 top-left pixels."""
+    return f"tile_{tile_idx:04d}_x{x}_y{y}"
+
+
+def parse_tile_name(stem: str) -> tuple[int, int, int] | None:
+    """Inverse of `tile_name`.  Returns (tile_idx, x, y) or None."""
+    m = TILE_RE.match(stem)
+    if not m:
+        return None
+    return int(m.group(1)), int(m.group(2)), int(m.group(3))
+
+
+def write_coord_files(
+    raw_dir: Path,
+    tiles: list[tuple[int, int, int]],
+    meta: dict,
+) -> None:
+    """Write coords.csv + coords_meta.json describing the saved tiles.
+
+    `tiles` is a list of (tile_idx, x, y) in saved order.  (x, y) is the
+    top-left corner of the patch in level-0 pixel space; multiply the patch
+    size by `downsample` from the metadata to get its level-0 extent.
+    """
+    with open(raw_dir / COORD_CSV_NAME, "w", newline="") as fh:
+        writer = csv.writer(fh)
+        writer.writerow(COORD_CSV_FIELDS)
+        for tile_idx, x, y in tiles:
+            name = tile_name(tile_idx, x, y)
+            writer.writerow([tile_idx, x, y, f"{name}_raw.png", f"{name}_mask.png"])
+
+    with open(raw_dir / COORD_META_NAME, "w") as fh:
+        json.dump(meta, fh, indent=2)
+        fh.write("\n")
+
+
 def is_background(patch_rgb: np.ndarray, thresh: float) -> bool:
     """True if more than `thresh` fraction of pixels are near-white."""
     white_mask = np.all(patch_rgb > 220, axis=-1)
@@ -191,8 +241,12 @@ def rasterise_mask(
 # Per-slide processing
 # ---------------------------------------------------------------------------
 
-def _process_tile(args_tuple) -> bool:
-    """Worker function for parallel tile extraction.  Returns True if saved."""
+def _process_tile(args_tuple):
+    """Worker for parallel tile extraction.
+
+    Returns (tile_idx, x, y) if the tile was written, or None if it was
+    skipped as background.
+    """
     (
         slide_path,
         x, y,
@@ -216,15 +270,15 @@ def _process_tile(args_tuple) -> bool:
     if filter_bg:
         arr = np.asarray(patch_img)
         if is_background(arr, bg_thresh):
-            return False
+            return None
 
-    name = f"tile_{tile_idx:04d}"
+    name = tile_name(tile_idx, x, y)
     patch_img.save(raw_dir / f"{name}_raw.png")
 
     mask_img = rasterise_mask(x, y, patch_size, level_downsample, polygons)
     mask_img.save(mask_dir / f"{name}_mask.png")
 
-    return True
+    return (tile_idx, x, y)
 
 
 def process_slide(
@@ -280,7 +334,7 @@ def process_slide(
         for idx, (x, y) in enumerate(coords)
     ]
 
-    saved = 0
+    saved_tiles: list[tuple[int, int, int]] = []
     skipped = 0
 
     with ThreadPoolExecutor(max_workers=args.num_workers) as pool:
@@ -293,36 +347,71 @@ def process_slide(
             leave=False,
         ):
             result = future.result()
-            if result:
-                saved += 1
+            if result is not None:
+                saved_tiles.append(result)
             else:
                 skipped += 1
 
+    # Completion order is arbitrary under the thread pool; restore grid order.
+    saved_tiles.sort()
+
     # Sequential rename so tile indices match saved order (no gaps from skipped)
-    # Re-number tiles after filtering to produce a contiguous index
     if args.filter_background and skipped > 0:
-        _renumber_tiles(raw_dir, mask_dir)
-        saved = len(list(raw_dir.glob("*_raw.png")))
+        saved_tiles = _renumber_tiles(raw_dir, mask_dir, saved_tiles)
 
-    return {"saved": saved, "skipped": skipped}
+    write_coord_files(
+        raw_dir,
+        saved_tiles,
+        {
+            "slide": slide_name,
+            "slide_path": str(slide_path),
+            "slide_width": W,
+            "slide_height": H,
+            "scan_magnification": scan_mag,
+            "target_magnification": args.magnification,
+            "patch_level": patch_level,
+            "downsample": level_downsample,
+            "patch_size": args.patch_size,
+            "patch_size_level0": patch_size_l0,
+            "overlap": args.overlap,
+            "stride_level0": stride_l0,
+            "coord_space": "level-0 pixels, top-left corner",
+            "filter_background": bool(args.filter_background),
+            "bg_thresh": args.bg_thresh if args.filter_background else None,
+            "tiles_saved": len(saved_tiles),
+            "tiles_skipped": skipped,
+        },
+    )
+
+    return {"saved": len(saved_tiles), "skipped": skipped}
 
 
-def _renumber_tiles(raw_dir: Path, mask_dir: Path) -> None:
-    """Re-number tile files so the index is contiguous after background filtering."""
-    raw_files = sorted(raw_dir.glob("*_raw.png"), key=lambda p: int(p.stem.split("_")[1]))
-    for new_idx, raw_path in enumerate(raw_files):
-        old_idx_str = raw_path.stem.split("_")[1]
-        new_name = f"tile_{new_idx:04d}"
-        old_name = f"tile_{old_idx_str}"
+def _renumber_tiles(
+    raw_dir: Path,
+    mask_dir: Path,
+    saved_tiles: list[tuple[int, int, int]],
+) -> list[tuple[int, int, int]]:
+    """Re-number tiles so the index is contiguous after background filtering.
 
-        new_raw = raw_dir / f"{new_name}_raw.png"
-        new_mask = mask_dir / f"{new_name}_mask.png"
+    The (x, y) coordinates ride along in the filename, so a tile stays
+    traceable to its slide position regardless of renumbering.
+    """
+    renumbered = []
+    for new_idx, (old_idx, x, y) in enumerate(saved_tiles):
+        old_name = tile_name(old_idx, x, y)
+        new_name = tile_name(new_idx, x, y)
+        renumbered.append((new_idx, x, y))
+        if old_name == new_name:
+            continue
 
-        if raw_path != new_raw:
-            raw_path.rename(new_raw)
-            old_mask = mask_dir / f"{old_name}_mask.png"
-            if old_mask.exists():
-                old_mask.rename(new_mask)
+        old_raw = raw_dir / f"{old_name}_raw.png"
+        if old_raw.exists():
+            old_raw.rename(raw_dir / f"{new_name}_raw.png")
+        old_mask = mask_dir / f"{old_name}_mask.png"
+        if old_mask.exists():
+            old_mask.rename(mask_dir / f"{new_name}_mask.png")
+
+    return renumbered
 
 
 # ---------------------------------------------------------------------------
