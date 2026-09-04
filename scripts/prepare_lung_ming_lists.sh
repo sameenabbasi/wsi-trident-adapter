@@ -2,11 +2,16 @@
 # ==============================================================
 #   Prepare process-list chunks for lung-data-ming patching.
 #
-#   Run on the LOGIN NODE before submitting the array job:
-#       bash prepare_lung_ming_lists.sh
+#   Run on the LOGIN NODE before submitting an array job:
+#       bash prepare_lung_ming_lists.sh [coords|feat]
 #
-#   Splits all .svs files in WSI_DIR into N_WORKERS chunks,
-#   skipping slides that already have a completed coords .h5.
+#   Splits all .svs files in WSI_DIR into N_WORKERS chunks, skipping
+#   slides already finished for the requested stage:
+#     coords (default) — skip slides with a coords .h5   (seg + patch job)
+#     feat             — skip slides with a features .h5 (feature job)
+#
+#   The two stages write to different chunk files, so preparing one
+#   does not clobber the other.
 #
 #   NOTE: slide filenames in this cohort contain spaces
 #   (e.g. "PHLC 189 UHNCEA-435.svs"). Everything below is
@@ -22,9 +27,27 @@ OUT_DIR="/cluster/projects/kumargroup/lung_ming/processed"
 N_WORKERS=8
 # --------------------
 
-COORDS_SUBDIR="20x_256px_0px_overlap/patches"
-LIST_DIR="${OUT_DIR}/process_lists"
-COORDS_DIR="${OUT_DIR}/${COORDS_SUBDIR}"
+ENCODER="uni_v2"
+STAGE="${1:-coords}"
+
+case "${STAGE}" in
+    coords)
+        DONE_DIR="${OUT_DIR}/20x_256px_0px_overlap/patches"
+        LIST_DIR="${OUT_DIR}/process_lists"
+        SUBMIT_SCRIPT="submit_lung_ming_patch.sh"
+        ;;
+    feat)
+        DONE_DIR="${OUT_DIR}/20x_256px_0px_overlap/features_${ENCODER}"
+        LIST_DIR="${OUT_DIR}/process_lists_feat"
+        SUBMIT_SCRIPT="submit_lung_ming_feat.sh"
+        ;;
+    *)
+        echo "[ERROR] Unknown stage '${STAGE}'. Use 'coords' or 'feat'." >&2
+        exit 1
+        ;;
+esac
+
+echo "[INFO] Stage: ${STAGE}"
 
 mkdir -p "${LIST_DIR}"
 
@@ -37,22 +60,43 @@ fi
 remaining=()
 n_total=0
 n_done=0
+n_no_coords=0
+COORDS_DIR="${OUT_DIR}/20x_256px_0px_overlap/patches"
 
 while IFS= read -r -d '' wsi; do
     (( n_total++ )) || true
     fname=$(basename "${wsi}")
     stem="${fname%.*}"
-    h5="${COORDS_DIR}/${stem}_patches.h5"
+    if [[ "${STAGE}" == "coords" ]]; then
+        h5="${DONE_DIR}/${stem}_patches.h5"
+    else
+        h5="${DONE_DIR}/${stem}.h5"
+    fi
 
     if [[ -s "${h5}" && ! -e "${h5}.lock" ]]; then
         (( n_done++ )) || true
         continue
     fi
+
+    # Features are computed from existing coordinates; a slide that never
+    # produced a coords h5 has nothing to encode.
+    if [[ "${STAGE}" == "feat" ]]; then
+        coords_h5="${COORDS_DIR}/${stem}_patches.h5"
+        if [[ ! -s "${coords_h5}" || -e "${coords_h5}.lock" ]]; then
+            (( n_no_coords++ )) || true
+            continue
+        fi
+    fi
+
     remaining+=("${fname}")
 done < <(find "${WSI_DIR}" -maxdepth 1 -type f -name '*.svs' -print0 | sort -z)
 
 echo "[INFO] Slides found            : ${n_total}"
-echo "[INFO] Already have coords h5  : ${n_done}"
+echo "[INFO] Already complete         : ${n_done}"
+if [[ "${STAGE}" == "feat" && ${n_no_coords} -gt 0 ]]; then
+    echo "[WARN] Skipped (no coords h5)   : ${n_no_coords}"
+    echo "[WARN]   Re-run the coords stage for these first."
+fi
 
 n=${#remaining[@]}
 echo "[INFO] Slides still to process : ${n}"
@@ -84,4 +128,4 @@ if grep -q ',' "${LIST_DIR}"/chunk_*.csv; then
 fi
 
 echo ""
-echo "[INFO] Done. Submit with: sbatch --array=0-$(( N_WORKERS - 1 )) submit_lung_ming_patch.sh"
+echo "[INFO] Done. Submit with: sbatch --array=0-$(( N_WORKERS - 1 )) ${SUBMIT_SCRIPT}"
