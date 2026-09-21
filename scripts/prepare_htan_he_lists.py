@@ -105,18 +105,47 @@ def mpp_from_file(path: Path) -> tuple[float | None, str]:
                     val *= 1000.0
                 return val, f"OME PhysicalSizeX ({unit})"
 
-        # 2) TIFF resolution tags (Akoya .qptiff, plain TIFF)
+        # 2) Aperio .svs stashes MPP in the page description
+        desc = tf.pages[0].description or ""
+        if "Aperio" in desc or "MPP" in desc:
+            m = re.search(r"\bMPP\s*=\s*([\d.eE+-]+)", desc)
+            if m:
+                return float(m.group(1)), "Aperio MPP"
+
+        # 3) TIFF resolution tags (Akoya .qptiff, plain TIFF)
         page = tf.pages[0]
         xres = page.tags.get("XResolution")
         runit = page.tags.get("ResolutionUnit")
         if xres is not None and xres.value[0]:
             ppu = xres.value[0] / xres.value[1]  # pixels per resolution unit
             unit = int(runit.value) if runit else 2  # 2=inch, 3=cm
+            # A writer default stamped in the file is worse than no value at
+            # all: it converts cleanly and looks like a real reading.
+            if unit == 2 and ppu in PLACEHOLDER_DPI:
+                return None, f"placeholder {ppu:g} dpi tag (not a real pixel size)"
             per_um = {2: 25400.0, 3: 10000.0}.get(unit, 25400.0)
             return per_um / ppu, f"XResolution (unit={unit})"
 
     return None, "not found"
 
+
+def _plausible(mpp: float | None, src: str) -> tuple[float | None, str]:
+    """Reject pixel sizes no brightfield scanner would produce."""
+    if mpp is None:
+        return None, src
+    if not (MPP_MIN <= mpp <= MPP_MAX):
+        return None, f"implausible mpp {mpp:.5g} from {src}"
+    return mpp, src
+
+
+# Brightfield WSI pixel sizes live in roughly 0.1-2 um/px (40x to 5x). Anything
+# outside this is a metadata artefact, not a scanner reading.
+MPP_MIN, MPP_MAX = 0.05, 5.0
+
+# Resolution tags that are library defaults rather than scanner readings. A
+# plain TIFF writer stamps 72 or 96 dpi when the caller says nothing, which
+# converts to a superficially valid 352.78 / 264.58 um/px.
+PLACEHOLDER_DPI = {72.0, 96.0, 1.0}
 
 DIMS_HE_MPP_RE = re.compile(r"HE=\d+x\d+\s*\([^)]*?mpp=([\d.eE+-]+)")
 
@@ -183,6 +212,10 @@ def main() -> int:
     if not args.manifest.is_file():
         print(f"[ERROR] Manifest not found: {args.manifest}", file=sys.stderr)
         return 1
+    for label, path in (("Dims TSV", args.dims_tsv), ("Extra-mpp CSV", args.extra_mpp)):
+        if path is not None and not path.is_file():
+            print(f"[ERROR] {label} not found: {path}", file=sys.stderr)
+            return 1
 
     if args.stage == "coords":
         list_dir = args.out_dir / "process_lists"
@@ -259,7 +292,7 @@ def main() -> int:
             probed, probe_src = None, "not probed (no tifffile)"
         else:
             try:
-                probed, probe_src = mpp_from_file(on_disk[name])
+                probed, probe_src = _plausible(*mpp_from_file(on_disk[name]))
             except Exception as err:  # unreadable/odd TIFF; report, don't abort
                 probed, probe_src = None, f"ERROR: {err}"
 
