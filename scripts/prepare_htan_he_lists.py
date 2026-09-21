@@ -39,7 +39,15 @@ import re
 import sys
 from pathlib import Path
 
-import tifffile
+
+# tifffile is needed only to probe pixel size out of a file's own metadata.
+# Login nodes often have a bare python, and when --dims-tsv/--extra-mpp/
+# --default-mpp already supply every mpp there is nothing to probe, so the
+# import is deferred rather than made a hard requirement of the script.
+try:
+    import tifffile
+except ModuleNotFoundError:  # pragma: no cover - environment-dependent
+    tifffile = None
 
 # ---- EDIT THESE ----
 DATA_DIR = Path("/cluster/projects/kumargroup/sean/data/HTAN_SPATIAL_PROTEOMICS")
@@ -76,6 +84,12 @@ def he_basenames_from_manifest(manifest: Path) -> dict[str, dict[str, str]]:
 
 def mpp_from_file(path: Path) -> tuple[float | None, str]:
     """Microns-per-pixel at full resolution, from OME-XML or TIFF resolution tags."""
+    if tifffile is None:
+        raise ModuleNotFoundError(
+            "tifffile is not installed in this python; activate the conda env "
+            "(conda activate methylcdm_h100) or supply mpp via --dims-tsv / "
+            "--extra-mpp / --default-mpp"
+        )
     with tifffile.TiffFile(path) as tf:
         # 1) OME-XML PhysicalSizeX
         ome = tf.ome_metadata
@@ -236,12 +250,18 @@ def main() -> int:
                 n_no_coords += 1
                 continue
 
-        try:
-            probed, probe_src = mpp_from_file(on_disk[name])
-        except Exception as err:  # unreadable/odd TIFF; report, don't abort
-            probed, probe_src = None, f"ERROR: {err}"
-
         biospecimen = he_rows[name].get("biospecimen", "").strip()
+
+        # Probe only when it can tell us something: either it is the source of
+        # record, or it is the cross-check against a value we already have.
+        known = name in extra_mpp or biospecimen in dims_mpp
+        if known and tifffile is None:
+            probed, probe_src = None, "not probed (no tifffile)"
+        else:
+            try:
+                probed, probe_src = mpp_from_file(on_disk[name])
+            except Exception as err:  # unreadable/odd TIFF; report, don't abort
+                probed, probe_src = None, f"ERROR: {err}"
 
         if name in extra_mpp:
             mpp, src = extra_mpp[name], "extra-mpp"
