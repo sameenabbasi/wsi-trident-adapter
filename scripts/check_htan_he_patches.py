@@ -55,6 +55,8 @@ def main() -> int:
     ap.add_argument("--manifest", type=Path, default=_prep.MANIFEST)
     ap.add_argument("--out-dir", type=Path, default=_prep.OUT_DIR)
     ap.add_argument("--all", action="store_true", help="List every slide, not just problems.")
+    ap.add_argument("--by-atlas", action="store_true",
+                    help="Break the summary down by atlas + modality.")
     args = ap.parse_args()
 
     if args.stage == "coords":
@@ -97,6 +99,30 @@ def main() -> int:
 
     missing_unexpected = [n for n in missing if n not in parked]
     missing_parked = [n for n in missing if n in parked]
+
+    if args.by_atlas:
+        # A cohort is only as done as its worst group; a single total hides a
+        # whole modality sitting at zero.
+        groups: dict[tuple[str, str], dict[str, int]] = {}
+        done = {n for n, _ in ok}
+        for name in on_disk:
+            row = he_rows[name]
+            key = (row.get("atlas", "?"), row.get("modality", "?"))
+            g = groups.setdefault(key, {"n": 0, "ok": 0, "parked": 0, "missing": 0})
+            g["n"] += 1
+            if name in done:
+                g["ok"] += 1
+            elif name in parked:
+                g["parked"] += 1
+            else:
+                g["missing"] += 1
+
+        print("")
+        print(f"{'atlas':20s} {'modality':16s} {'on disk':>8s} {'patched':>8s}"
+              f" {'parked':>8s} {'missing':>8s}")
+        for (atlas, modality), g in sorted(groups.items()):
+            print(f"{atlas:20s} {modality:16s} {g['n']:>8d} {g['ok']:>8d}"
+                  f" {g['parked']:>8d} {g['missing']:>8d}")
 
     print("")
     print(f"[INFO] Stage                  : {args.stage}")
