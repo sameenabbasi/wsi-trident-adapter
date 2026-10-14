@@ -35,7 +35,11 @@ class Config:
     class Features:
         encoder: str
         batch_size: int
-
+    @dataclass(frozen=True, slots=True)
+    class Normalization:
+        enabled: bool
+        method: str
+        output_dir: Path
     @dataclass(frozen=True, slots=True)
     class System:
         device: str
@@ -44,6 +48,7 @@ class Config:
     segmentation: Segmentation
     patching: Patching
     features: Features
+    normalization: Normalization
     system: System
 
     @classmethod
@@ -84,7 +89,15 @@ class Config:
             encoder=feat_data["encoder"],
             batch_size=int(feat_data["batch_size"]),
         )
+        norm_data = data.get("normalization", {})
 
+        normalization = cls.Normalization(
+            enabled=bool(norm_data.get("enabled", False)),
+            method=norm_data.get("method", "macenko"),
+            output_dir=Path(
+                norm_data.get("output_dir", "./out/normalized")
+            ).expanduser().resolve(),
+        )
         system = cls.System(device=sys_data["device"])
 
         return cls(
@@ -122,7 +135,13 @@ class Config:
                 "encoder": self.features.encoder,
                 "batch_size": self.features.batch_size,
             },
+                        "normalization": {
+                "enabled": self.normalization.enabled,
+                "method": self.normalization.method,
+                "output_dir": str(self.normalization.output_dir),
+            },
             "system": {
                 "device": self.system.device,
             },
+          
         }

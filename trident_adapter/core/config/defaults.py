@@ -21,6 +21,11 @@ DEFAULTS: dict = {
         "encoder": "uni_v2",
         "batch_size": 128,
     },
+        "normalization": {
+        "enabled": False,
+        "method": "macenko",
+        "output_dir": "./out/normalized",
+    },
     "system": {
         "device": "cuda",
     },

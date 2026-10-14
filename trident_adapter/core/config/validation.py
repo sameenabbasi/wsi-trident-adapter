@@ -20,7 +20,8 @@ def validate_yaml_structure(raw: Any) -> list[str]:
         errors.append("YAML root must be a dict.")
         return errors
 
-    allowed_sections = {"io", "segmentation", "patching", "features", "system"}
+    allowed_sections = {"io", "segmentation", "patching", "features", "normalization", "system"}
+    
     for sec, val in raw.items():
         if sec not in allowed_sections:
             errors.append(f"Unknown section: {sec}")
@@ -153,4 +154,17 @@ def validate_config(config: dict) -> list[str]:
             "Please refer to the config instructions for acceptable inputs."
         )
 
+        # normalization
+    norm = config.get("normalization", {})
+    if not isinstance(norm.get("enabled", False), bool):
+        errors.append("normalization.enabled must be true or false.")
+
+    if norm.get("method", "macenko") not in {"macenko"}:
+        errors.append(
+            "Invalid normalization.method. Currently supported: 'macenko'."
+        )
+
+    if not norm.get("output_dir", "./out/normalized"):
+        errors.append("normalization.output_dir must not be empty.")
+        
     return errors
