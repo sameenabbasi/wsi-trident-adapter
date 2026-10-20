@@ -4,8 +4,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-import pandas as pd
-
 
 @dataclass(frozen=True, slots=True)
 class Config:
@@ -35,11 +33,13 @@ class Config:
     class Features:
         encoder: str
         batch_size: int
+
     @dataclass(frozen=True, slots=True)
     class Normalization:
         enabled: bool
         method: str
         output_dir: Path
+
     @dataclass(frozen=True, slots=True)
     class System:
         device: str
@@ -58,12 +58,13 @@ class Config:
         patch_data = data["patching"]
         feat_data = data["features"]
         sys_data = data["system"]
+        norm_data = data.get("normalization", {})
 
         io = cls.IO(
             wsi_dir=Path(io_data["wsi_dir"]).expanduser().resolve(),
             job_dir=Path(io_data["job_dir"]).expanduser().resolve(),
             process_list=(
-                Path(io_data["process_list"])
+                Path(io_data["process_list"]).expanduser().resolve()
                 if io_data.get("process_list")
                 else None
             ),
@@ -82,22 +83,24 @@ class Config:
             magnification=int(patch_data["magnification"]),
             patch_size=int(patch_data["patch_size"]),
             overlap=int(patch_data["overlap"]),
-            min_tissue_proportion=float(patch_data["min_tissue_proportion"]),
+            min_tissue_proportion=float(
+                patch_data["min_tissue_proportion"]
+            ),
         )
 
         features = cls.Features(
             encoder=feat_data["encoder"],
             batch_size=int(feat_data["batch_size"]),
         )
-        norm_data = data.get("normalization", {})
 
         normalization = cls.Normalization(
             enabled=bool(norm_data.get("enabled", False)),
-            method=norm_data.get("method", "macenko"),
+            method=str(norm_data.get("method", "macenko")),
             output_dir=Path(
                 norm_data.get("output_dir", "./out/normalized")
             ).expanduser().resolve(),
         )
+
         system = cls.System(device=sys_data["device"])
 
         return cls(
@@ -105,6 +108,7 @@ class Config:
             segmentation=segmentation,
             patching=patching,
             features=features,
+            normalization=normalization,
             system=system,
         )
 
@@ -114,7 +118,9 @@ class Config:
                 "wsi_dir": str(self.io.wsi_dir),
                 "job_dir": str(self.io.job_dir),
                 "process_list": (
-                    str(self.io.process_list) if self.io.process_list else None
+                    str(self.io.process_list)
+                    if self.io.process_list
+                    else None
                 ),
                 "wsi_extension": list(self.io.wsi_extension),
                 "run_id": self.io.run_id,
@@ -129,13 +135,15 @@ class Config:
                 "magnification": self.patching.magnification,
                 "patch_size": self.patching.patch_size,
                 "overlap": self.patching.overlap,
-                "min_tissue_proportion": self.patching.min_tissue_proportion,
+                "min_tissue_proportion": (
+                    self.patching.min_tissue_proportion
+                ),
             },
             "features": {
                 "encoder": self.features.encoder,
                 "batch_size": self.features.batch_size,
             },
-                        "normalization": {
+            "normalization": {
                 "enabled": self.normalization.enabled,
                 "method": self.normalization.method,
                 "output_dir": str(self.normalization.output_dir),
@@ -143,5 +151,4 @@ class Config:
             "system": {
                 "device": self.system.device,
             },
-          
         }
