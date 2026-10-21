@@ -39,6 +39,7 @@ class Config:
         enabled: bool
         method: str
         output_dir: Path
+        reference_image: Path | None = None
 
     @dataclass(frozen=True, slots=True)
     class System:
@@ -59,6 +60,7 @@ class Config:
         feat_data = data["features"]
         sys_data = data["system"]
         norm_data = data.get("normalization", {})
+        ref = norm_data.get("reference_image")
 
         io = cls.IO(
             wsi_dir=Path(io_data["wsi_dir"]).expanduser().resolve(),
@@ -95,10 +97,13 @@ class Config:
 
         normalization = cls.Normalization(
             enabled=bool(norm_data.get("enabled", False)),
-            method=str(norm_data.get("method", "macenko")),
+            method=norm_data.get("method", "macenko"),
             output_dir=Path(
                 norm_data.get("output_dir", "./out/normalized")
             ).expanduser().resolve(),
+            reference_image=(
+                Path(ref).expanduser().resolve() if ref else None
+            ),
         )
 
         system = cls.System(device=sys_data["device"])
@@ -147,6 +152,11 @@ class Config:
                 "enabled": self.normalization.enabled,
                 "method": self.normalization.method,
                 "output_dir": str(self.normalization.output_dir),
+                "reference_image": (
+                    str(self.normalization.reference_image)
+                    if self.normalization.reference_image
+                    else None
+                ),
             },
             "system": {
                 "device": self.system.device,

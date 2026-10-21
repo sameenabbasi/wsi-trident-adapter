@@ -18,8 +18,19 @@ def run_feature_extraction(config: Config, processor: "trident.Processor"):
         f"{config.patching.patch_size}px_"
         f"{config.patching.overlap}px_overlap"
     )
-
     encoder = patch_encoder_model_factory(config.features.encoder)
+
+    if config.normalization.enabled:
+        from .normalization import MacenkoNormalizer, NormalizingTransform
+
+        normalizer = MacenkoNormalizer(config.normalization.reference_image)
+        encoder.eval_transforms = NormalizingTransform(
+            normalizer,
+            encoder.eval_transforms,
+            qc_dir=str(config.normalization.output_dir / "qc_patches"),
+            qc_n=3,
+        )
+
     processor.run_patch_feature_extraction_job(
         coords_dir=coords_dir,
         patch_encoder=encoder,

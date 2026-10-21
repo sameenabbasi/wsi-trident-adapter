@@ -166,5 +166,17 @@ def validate_config(config: dict) -> list[str]:
 
     if not norm.get("output_dir", "./out/normalized"):
         errors.append("normalization.output_dir must not be empty.")
-        
+
+    if norm.get("enabled", False):
+        ref = norm.get("reference_image")
+        if not ref:
+            errors.append(
+                "normalization.reference_image is required when "
+                "normalization.enabled is true."
+            )
+        elif not os.path.isfile(ref):
+            errors.append(
+                f"normalization.reference_image does not exist: "
+                f"{Path(ref).resolve()}"
+            )
     return errors

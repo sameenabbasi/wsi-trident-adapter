@@ -64,3 +64,39 @@ class MacenkoNormalizer:
 
         normalized.save(output_path)
         return output_path
+
+
+
+class NormalizingTransform:
+    """Macenko-normalize a PIL tile, then apply the encoder's own transform."""
+
+    def __init__(self, normalizer, base_transform, qc_dir=None, qc_n=3):
+        self.normalizer = normalizer
+        self.base_transform = base_transform
+        self.qc_dir = qc_dir
+        self.qc_n = qc_n
+
+    def _save_qc(self, before, after):
+        import os
+
+        os.makedirs(self.qc_dir, exist_ok=True)
+        existing = [
+            f for f in os.listdir(self.qc_dir) if f.endswith("_before.png")
+        ]
+        if len(existing) >= self.qc_n:
+            return
+        tag = f"{os.getpid()}_{len(existing)}"
+        before.save(os.path.join(self.qc_dir, f"{tag}_before.png"))
+        after.save(os.path.join(self.qc_dir, f"{tag}_after.png"))
+
+    def __call__(self, tile):
+        import warnings
+
+        original = tile
+        try:
+            tile = self.normalizer.normalize(tile)
+            if self.qc_dir:
+                self._save_qc(original, tile)
+        except Exception as exc:
+            warnings.warn(f"Macenko failed, using original patch: {exc}")
+        return self.base_transform(tile)
